@@ -1,12 +1,12 @@
 import operator
 
 import pytest
-from dokusan import entities
+from dokusan.entities import Cell, Mark, Position, Sudoku
 
 
 @pytest.fixture
 def sudoku():
-    return entities.Sudoku(
+    return Sudoku(
         [
             [0, 0, 7, 0, 3, 0, 8, 0, 0],
             [0, 0, 0, 2, 0, 5, 0, 0, 0],
@@ -22,13 +22,13 @@ def sudoku():
 
 
 def test_getitem(sudoku):
-    assert sudoku[0, 0] == entities.Mark(position=(0, 0), candidates={2, 6, 9})
-    assert sudoku[2, 3] == entities.Cell(position=(2, 3), value=9)
+    assert sudoku[0, 0] == Mark(position=Position(0, 0, 0), candidates={2, 6, 9})
+    assert sudoku[2, 3] == Cell(position=Position(2, 3, 1), value=9)
 
 
 def test_update_cells(sudoku):
-    cell = entities.Cell(position=(0, 0), value=2)
-    mark = entities.Mark(position=(0, 1), candidates=[9])
+    cell = Cell(position=Position(0, 0, 0), value=2)
+    mark = Mark(position=Position(0, 1, 0), candidates=[9])
     sudoku.update_cells([cell, mark])
     assert sudoku[0, 0] is cell
     assert sudoku.puzzle[0][0] == 2
@@ -38,8 +38,8 @@ def test_update_cells(sudoku):
 
 
 def test_cells(sudoku):
-    assert isinstance(sudoku.cells()[0], entities.Mark)
-    assert isinstance(sudoku.cells()[2], entities.Cell)
+    assert isinstance(sudoku.cells()[0], Mark)
+    assert isinstance(sudoku.cells()[2], Cell)
 
 
 def test_rows(sudoku):
@@ -150,7 +150,7 @@ def test_squares(sudoku):
     ],
 )
 def test_is_solved_false(puzzle, solved):
-    sudoku = entities.Sudoku(puzzle)
+    sudoku = Sudoku(puzzle)
     assert sudoku.is_solved() is solved
 
 

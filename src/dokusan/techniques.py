@@ -196,8 +196,8 @@ class Omission:
             for mark in marks:
                 for intersection in [
                     block,
-                    sudoku.rows()[mark.position[0]],
-                    sudoku.columns()[mark.position[1]],
+                    sudoku.rows()[mark.position.row],
+                    sudoku.columns()[mark.position.column],
                 ]:
                     candidates = [
                         candidate
@@ -213,8 +213,7 @@ class Omission:
                                     and m is not mark
                                     and candidate in m.candidates
                                     and self._is_omission([candidate, mark, m], sudoku)
-                                    and sudoku.get_square_num_by(*m.position)
-                                    == sudoku.get_square_num_by(*mark.position)
+                                    and m.position.square == mark.position.square
                                 ):
                                     return [candidate, mark, m]
 
@@ -347,11 +346,11 @@ class UniqueRectangle:
                     counter[pair] = 0
                 counter[pair] += 1
 
-            pairs = [key for key in counter if counter[key] == 2]
+            pairs = [set(key) for key in counter if counter[key] == 2]
             for pair in pairs:
-                cells = [mark for mark in marks if mark.candidates == set(pair)]
+                cells = [mark for mark in marks if mark.candidates == pair]
                 assert len(cells) == 2, f"Expected 2, got: {len(cells)}:{cells}:{pairs}"
-                x, y = cells[0].position[1], cells[1].position[1]
+                x, y = cells[0].position.column, cells[1].position.column
 
                 for row_b in sudoku.rows():
                     if row == row_b:
@@ -359,11 +358,8 @@ class UniqueRectangle:
                     for cell in row_b:
                         if not isinstance(cell, Mark):
                             continue
-                        if cell.position[1] in (x, y) and cell.candidates == set(pair):
-                            if cell.position[1] == x:
-                                pos = cell.position[0], y
-                            else:
-                                pos = cell.position[0], x
+                        if cell.position.column in (x, y) and cell.candidates == pair:
+                            pos = cell.position.row, x
                             if (
                                 isinstance(row_b[pos[1]], Mark)
                                 and len(row_b[pos[1]].candidates & cell.candidates) == 2
@@ -379,9 +375,7 @@ class UniqueRectangle:
             for edge_b in rectangle:
                 if edge_a is edge_b:
                     continue
-                pos_a = sudoku.get_square_num_by(*edge_a.position)
-                pos_b = sudoku.get_square_num_by(*edge_b.position)
-                if pos_a == pos_b:
+                if edge_a.position.square == edge_b.position.square:
                     intersection_map[edge_a.position] = (
                         intersection_map.get(edge_a.position, 0) + 1
                     )
