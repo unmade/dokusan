@@ -304,10 +304,10 @@ def test_xy_wing():
 
     xy_wing = techniques.XYWing(sudoku).first()
 
-    assert xy_wing.positions == [
+    assert sorted(xy_wing.positions) == [
+        Position(3, 3, 4),
         Position(5, 4, 4),
         Position(5, 7, 5),
-        Position(3, 3, 4),
     ]
     assert xy_wing.values == [1]
 
@@ -360,7 +360,7 @@ def test_unique_rectangle_in_a_row():
 
     unique_rectangle = techniques.UniqueRectangle(sudoku).first()
 
-    assert unique_rectangle.positions == [
+    assert sorted(unique_rectangle.positions) == [
         Position(4, 3, 4),
         Position(4, 5, 4),
         Position(8, 3, 7),
@@ -399,7 +399,7 @@ def test_unique_rectangle_in_a_column():
 
     unique_rectangle = techniques.UniqueRectangle(sudoku).first()
 
-    assert unique_rectangle.positions == [
+    assert sorted(unique_rectangle.positions) == [
         Position(6, 0, 6),
         Position(6, 8, 8),
         Position(7, 0, 6),
