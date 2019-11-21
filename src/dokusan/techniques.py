@@ -38,9 +38,9 @@ class LoneSingle:
             raise NotFound("No Lone Single found")
 
     def _find(self, sudoku):
-        for cell in sudoku.cells():
-            if isinstance(cell, Mark) and len(cell.candidates) == 1:
-                yield Cell(position=cell.position, value=next(iter(cell.candidates)))
+        for mark in sudoku.marks():
+            if len(mark.candidates) == 1:
+                yield Cell(position=mark.position, value=next(iter(mark.candidates)))
 
     def _get_changed_cells(self, single, sudoku) -> List[Mark]:
         return [single] + [
@@ -247,11 +247,7 @@ class XYWing:
             raise NotFound("No XYWing found")
 
     def _find(self, sudoku: Sudoku):
-        marks = [
-            mark
-            for mark in sudoku.cells()
-            if isinstance(mark, Mark) and len(mark.candidates) == 2
-        ]
+        marks = [mark for mark in sudoku.marks() if len(mark.candidates) == 2]
         for wing in itertools.combinations(marks, 3):
             if self._is_xy_wing(wing):
                 yield wing
@@ -267,11 +263,11 @@ class XYWing:
         return True
 
     def _get_changed_cells(self, xy_wing, sudoku):
-        cell_a, cell_b = next(
+        cell_a, cell_b = [
             pair
             for pair in itertools.combinations(xy_wing, 2)
             if not self.sudoku.is_intersects(*pair)
-        )
+        ][0]
         eliminated = cell_a.candidates & cell_b.candidates
         return [
             Mark(position=m.position, candidates=m.candidates - eliminated)
@@ -287,7 +283,7 @@ class UniqueRectangle:
     def __iter__(self):
         return (
             Result(
-                positions=[cell.position for cell in rectangle],
+                positions=[edge.position for edge in rectangle],
                 values=sorted(rectangle[0].candidates & rectangle[1].candidates),
                 changed_cells=changed_cells,
             )
@@ -302,11 +298,7 @@ class UniqueRectangle:
             raise NotFound("No Unique Rectangle found")
 
     def _find(self, sudoku):
-        marks = [
-            mark
-            for mark in sudoku.cells()
-            if isinstance(mark, Mark) and len(mark.candidates) == 2
-        ]
+        marks = [mark for mark in sudoku.marks() if len(mark.candidates) == 2]
         for edges in itertools.combinations(marks, r=3):
             if self._is_edges(edges):
                 rows = {edge.position.row for edge in edges}

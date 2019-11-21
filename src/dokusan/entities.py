@@ -56,6 +56,9 @@ class Sudoku:
     def cells(self) -> List[Union[Cell, Mark]]:
         return [self[i, j] for i in range(self.size_n) for j in range(self.size_m)]
 
+    def marks(self) -> List[Mark]:
+        return [mark for mark in self.cells() if isinstance(mark, Mark)]
+
     def rows(self) -> List[List[Union[Cell, Mark]]]:
         return [[self[i, j] for j in range(self.size_m)] for i in range(self.size_n)]
 

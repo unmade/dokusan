@@ -42,6 +42,11 @@ def test_cells(sudoku):
     assert isinstance(sudoku.cells()[2], Cell)
 
 
+def test_marks(sudoku):
+    for mark in sudoku.marks():
+        assert isinstance(mark, Mark)
+
+
 def test_rows(sudoku):
     for i in range(sudoku.size_n):
         for j in range(sudoku.size_m):
