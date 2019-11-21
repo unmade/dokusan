@@ -1,78 +1,117 @@
-from dokusan.entities import Cell, Mark
+from dataclasses import dataclass
+from typing import List, Union
+
+from dokusan.entities import Cell, Mark, Position, Sudoku
 
 
 class NotFound(Exception):
     pass
 
 
+@dataclass
+class Result:
+    positions: List[Position]
+    values: List[int]
+    changed_cells: List[Union[Cell, Mark]]
+
+
 class LoneSingle:
-    def __init__(self, sudoku):
-        self.single = self._find_lone_single(sudoku)
-        if self.single is None:
+    def __init__(self, sudoku: Sudoku):
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position],
+                values=[cell.value],
+                changed_cells=self._get_changed_cells(cell, self.sudoku),
+            )
+            for cell in self._find(self.sudoku)
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Lone Single found")
-        self.affected_cells = self._get_affected_cells(self.single, sudoku)
 
-    def __str__(self):
-        return f"Lone single `{self.single.value}` at {self.single.position}"
-
-    def _find_lone_single(self, sudoku):
+    def _find(self, sudoku):
         for cell in sudoku.cells():
             if isinstance(cell, Mark) and len(cell.candidates) == 1:
-                return Cell(position=cell.position, value=cell.candidates.pop())
-        return None
+                yield Cell(position=cell.position, value=next(iter(cell.candidates)))
 
-    def _get_affected_cells(self, single, sudoku):
+    def _get_changed_cells(self, single, sudoku) -> List[Mark]:
         return [single] + [
             Mark(
                 position=mark.position,
-                candidates=mark.candidates - set([self.single.value]),
+                candidates=mark.candidates - set([single.value]),
             )
             for mark in sudoku.intersection(single)
-            if isinstance(mark, Mark) and mark.candidates & set([self.single.value])
+            if isinstance(mark, Mark) and mark.candidates & set([single.value])
         ]
 
 
 class HiddenSingle:
     def __init__(self, sudoku):
-        self.single = self._find_hidden_single(sudoku)
-        if self.single is None:
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position],
+                values=[cell.value],
+                changed_cells=self._get_changed_cells(cell, self.sudoku),
+            )
+            for cell in self._find(self.sudoku)
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Hidden Single found")
-        self.affected_cells = self._get_affected_cells(self.single, sudoku)
 
-    def __str__(self):
-        return f"Hidden single `{self.single.value}` at {self.single.position}"
-
-    def _find_hidden_single(self, sudoku):
+    def _find(self, sudoku):
         for house in sudoku.rows() + sudoku.columns() + sudoku.squares():
             marks = [mark for mark in house if isinstance(mark, Mark)]
             for mark in marks:
-                values = set().union(*[m.candidates for m in marks if m is not mark])
+                values = set.union(*[m.candidates for m in marks if m is not mark])
                 if len(single := (mark.candidates - values)) == 1:
-                    return Cell(position=mark.position, value=single.pop())
-        return None
+                    yield Cell(position=mark.position, value=next(iter(single)))
 
-    def _get_affected_cells(self, single, sudoku):
+    def _get_changed_cells(self, single, sudoku) -> List[Mark]:
         return [single] + [
             Mark(
                 position=mark.position,
-                candidates=mark.candidates - set([self.single.value]),
+                candidates=mark.candidates - set([single.value]),
             )
             for mark in sudoku.intersection(single)
-            if isinstance(mark, Mark) and mark.candidates & set([self.single.value])
+            if isinstance(mark, Mark) and mark.candidates & set([single.value])
         ]
 
 
 class NakedPair:
     def __init__(self, sudoku):
-        self.pair = self._find_naked_pair(sudoku)
-        if self.pair is None:
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position for cell in pair],
+                values=pair[0].candidates,
+                changed_cells=changed_cells,
+            )
+            for pair in self._find(self.sudoku)
+            if (changed_cells := self._get_changed_cells(pair, self.sudoku))
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Naked Pair found")
-        self.affected_cells = self._get_affected_cells(self.pair, sudoku)
 
-    def __str__(self):
-        return f"Naked pair `{self.pair}`"
-
-    def _find_naked_pair(self, sudoku):
+    def _find(self, sudoku):
         for house in sudoku.rows() + sudoku.columns() + sudoku.squares():
             marks = [mark for mark in house if isinstance(mark, Mark)]
             counter = {}
@@ -89,45 +128,40 @@ class NakedPair:
                     and count == 2
                     and pair == tuple(mark.candidates)
                 ]:
-                    if self._is_naked_pair(cells, sudoku):
-                        return cells
+                    yield cells
 
-        return None
-
-    def _is_naked_pair(self, pair, sudoku):
-        return bool(
-            pair[0].candidates
-            & set().union(
-                *[
-                    mark.candidates
-                    for mark in sudoku.intersection(*pair)
-                    if isinstance(mark, Mark)
-                ]
-            )
-        )
-
-    def _get_affected_cells(self, pair, sudoku):
-        marks = [mark for mark in sudoku.intersection(*pair) if isinstance(mark, Mark)]
+    def _get_changed_cells(self, pair, sudoku) -> List[Mark]:
         return [
             Mark(
                 position=mark.position, candidates=mark.candidates - pair[0].candidates,
             )
-            for mark in marks
+            for mark in sudoku.intersection(*pair)
             if isinstance(mark, Mark) and mark.candidates & pair[0].candidates
         ]
 
 
 class NakedTriplet:
     def __init__(self, sudoku):
-        self.triplet = self._find_naked_triplet(sudoku)
-        if self.triplet is None:
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position for cell in triplet],
+                values=list(set.union(*[t.candidates for t in triplet])),
+                changed_cells=changed_cells,
+            )
+            for triplet in self._find(self.sudoku)
+            if (changed_cells := self._get_changed_cells(triplet, self.sudoku))
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Naked Triplet found")
-        self.affected_cells = self._get_affected_cells(self.triplet, sudoku)
 
-    def __str__(self):
-        return f"Naked Triplet `{self.triplet}`"
-
-    def _find_naked_triplet(self, sudoku):
+    def _find(self, sudoku):
         for house in sudoku.rows() + sudoku.columns() + sudoku.squares():
             marks = [mark for mark in house if isinstance(mark, Mark)]
             counter = {}
@@ -146,7 +180,7 @@ class NakedTriplet:
                     and len(mark.candidates) in (2, 3)
                 ]:
                     if self._is_naked_triplet(cells, sudoku):
-                        return cells
+                        yield cells
 
         return None
 
@@ -168,29 +202,37 @@ class NakedTriplet:
             )
         )
 
-    def _get_affected_cells(self, triplet, sudoku):
-        marks = [
-            mark for mark in sudoku.intersection(*triplet) if isinstance(mark, Mark)
-        ]
-        candidates = set().union(*[t.candidates for t in triplet])
+    def _get_changed_cells(self, triplet, sudoku) -> List[Mark]:
+        candidates = set.union(*[t.candidates for t in triplet])
         return [
-            Mark(position=mark.position, candidates=mark.candidates - candidates,)
-            for mark in marks
+            Mark(position=mark.position, candidates=mark.candidates - candidates)
+            for mark in sudoku.intersection(*triplet)
             if isinstance(mark, Mark) and mark.candidates & candidates
         ]
 
 
 class Omission:
-    def __init__(self, sudoku):
-        self.omission = self._find_ommision(sudoku)
-        if self.omission is None:
+    def __init__(self, sudoku: Sudoku):
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position for cell in omission[1:]],
+                values=[omission[0]],
+                changed_cells=changed_cells,
+            )
+            for omission in self._find(self.sudoku)
+            if (changed_cells := self._get_changed_cells(omission, self.sudoku))
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Omission found")
-        self.affected_cells = self._get_affected_cells(self.omission, sudoku)
 
-    def __str__(self):
-        return f"Omission `{self.omission[0]}` at {self.omission[1:]}"
-
-    def _find_ommision(self, sudoku):
+    def _find(self, sudoku):
         for block in sudoku.squares():
             marks = [mark for mark in block if isinstance(mark, Mark)]
             for mark in marks:
@@ -215,9 +257,7 @@ class Omission:
                                     and self._is_omission([candidate, mark, m], sudoku)
                                     and m.position.square == mark.position.square
                                 ):
-                                    return [candidate, mark, m]
-
-        return None
+                                    yield [candidate, mark, m]
 
     def _is_omission(self, omission, sudoku):
         return bool(
@@ -231,7 +271,7 @@ class Omission:
             )
         )
 
-    def _get_affected_cells(self, omission, sudoku):
+    def _get_changed_cells(self, omission, sudoku):
         return [
             Mark(
                 position=mark.position, candidates=mark.candidates - set([omission[0]]),
@@ -242,16 +282,33 @@ class Omission:
 
 
 class XYWing:
-    def __init__(self, sudoku):
-        self.xy_wing = self._find_xy_wing(sudoku)
-        if self.xy_wing is None:
+    def __init__(self, sudoku: Sudoku):
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        import itertools
+
+        return (
+            Result(
+                positions=[cell.position for cell in xy_wing],
+                values=[
+                    next(iter(cell_a.candidates & cell_b.candidates))
+                    for cell_a, cell_b in itertools.combinations(xy_wing, r=2)
+                    if not self.sudoku.is_intersects(cell_a, cell_b)
+                ],
+                changed_cells=changed_cells,
+            )
+            for xy_wing in self._find(self.sudoku)
+            if (changed_cells := self._get_changed_cells(xy_wing, self.sudoku))
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No XYWing found")
-        self.affected_cells = self._get_affected_cells(self.xy_wing, sudoku)
 
-    def __str__(self):
-        return f"XYWing {self.xy_wing}"
-
-    def _find_xy_wing(self, sudoku):
+    def _find(self, sudoku: Sudoku):
         houses = sudoku.rows() + sudoku.columns() + sudoku.squares()
         for house in houses:
             pairs = []
@@ -289,9 +346,7 @@ class XYWing:
                         and len(mark.candidates & pair[1].candidates) == 1
                         and self._is_xy_wing(pair + [mark], sudoku)
                     ):
-                        return pair + [mark]
-
-        return None
+                        yield pair + [mark]
 
     def _is_xy_wing(self, xy_wing, sudoku):
         for cell_a in xy_wing:
@@ -310,7 +365,7 @@ class XYWing:
                     )
         return False
 
-    def _get_affected_cells(self, xy_wing, sudoku):
+    def _get_changed_cells(self, xy_wing, sudoku):
         for cell_a in xy_wing:
             for cell_b in xy_wing:
                 if cell_a is not cell_b and not sudoku.is_intersects(cell_a, cell_b):
@@ -324,16 +379,27 @@ class XYWing:
 
 
 class UniqueRectangle:
-    def __init__(self, sudoku):
-        self.unique_rectangle = self._find_unique_rectangle(sudoku)
-        if self.unique_rectangle is None:
+    def __init__(self, sudoku: Sudoku):
+        self.sudoku = sudoku
+
+    def __iter__(self):
+        return (
+            Result(
+                positions=[cell.position for cell in rectangle],
+                values=sorted(rectangle[0].candidates & rectangle[1].candidates),
+                changed_cells=changed_cells,
+            )
+            for rectangle in self._find(self.sudoku)
+            if (changed_cells := self._get_changed_cells(rectangle, self.sudoku))
+        )
+
+    def first(self) -> Result:
+        try:
+            return next(iter(self))
+        except StopIteration:
             raise NotFound("No Unique Rectangle found")
-        self.affected_cells = self._get_affected_cells(self.unique_rectangle, sudoku)
 
-    def __str__(self):
-        return f"Unique Rectangle `{self.unique_rectangle}`"
-
-    def _find_unique_rectangle(self, sudoku):
+    def _find(self, sudoku):
         for row in sudoku.rows():
             marks = [
                 mark
@@ -367,7 +433,7 @@ class UniqueRectangle:
                                 if self._is_unique_rectangle(
                                     [sudoku[pos], cell, *cells], sudoku
                                 ):
-                                    return [sudoku[pos], cell, *cells]
+                                    yield [sudoku[pos], cell, *cells]
 
     def _is_unique_rectangle(self, rectangle, sudoku):
         intersection_map = {}
@@ -386,7 +452,7 @@ class UniqueRectangle:
 
         return True
 
-    def _get_affected_cells(self, rectangle, sudoku):
+    def _get_changed_cells(self, rectangle, sudoku):
         for edge_a in rectangle:
             for edge_b in rectangle:
                 if diff := (edge_a.candidates - edge_b.candidates):

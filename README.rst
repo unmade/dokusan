@@ -29,8 +29,8 @@ The following code displays all steps leading to solution:
             i = 0
             for technique in techniques:
                 try:
-                    result = technique(sudoku)
-                except NotFound as exc:
+                    result = technique(sudoku).first()
+                except techniques.NotFound as exc:
                     continue
                 else:
                     sudoku.update_cells(result.affected_cells)
