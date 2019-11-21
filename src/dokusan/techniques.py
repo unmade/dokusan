@@ -311,10 +311,6 @@ class UniqueRectangle:
         if len(set.intersection(*[m.candidates for m in marks])) != 2:
             return False
         combinations = tuple(itertools.combinations(marks, 2))
-        if sum(a.position.row == b.position.row for a, b in combinations) != 1:
-            return False
-        if sum(a.position.column == b.position.column for a, b in combinations) != 1:
-            return False
         if sum(a.position.square == b.position.square for a, b in combinations) != 1:
             return False
         return True
