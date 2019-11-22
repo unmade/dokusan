@@ -15,7 +15,7 @@ The following code displays all steps leading to solution:
 
 
     def list_steps(sudoku: entities.Sudoku):
-        techniques = (
+        all_techniques = (
             techniques.LoneSingle,
             techniques.HiddenSingle,
             techniques.NakedPair,
@@ -27,20 +27,20 @@ The following code displays all steps leading to solution:
         i = 1
         while not sudoku.is_solved() and i == 1:
             i = 0
-            for technique in techniques:
+            for technique in all_techniques:
                 try:
                     result = technique(sudoku).first()
                 except techniques.NotFound as exc:
                     continue
                 else:
-                    sudoku.update_cells(result.affected_cells)
+                    sudoku.update_cells(result.changed_cells)
                     yield result
                     i = 1
                     break
 
     _ = 0
 
-    sudoku = Sudoku([
+    sudoku = entities.Sudoku([
         [_, _, _, _, 9, _, 1, _, _],
         [_, _, _, _, _, 2, 3, _, _],
         [_, _, 7, _, _, 1, 8, 2, 5],
