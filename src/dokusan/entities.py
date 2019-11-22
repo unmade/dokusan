@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, NamedTuple, Set, Tuple, Union
+from typing import Dict, List, NamedTuple, Set, Tuple, Union
 
 
 class Position(NamedTuple):
@@ -26,32 +26,30 @@ class Sudoku:
         self.size_n = len(puzzle)
         self.size_m = len(puzzle[0])
         self.square_size = 3
-
-        self.sudoku: List[List[Union[Cell, Mark]]] = []
-        for i in range(self.size_n):
-            row: List[Union[Cell, Mark]] = []
-            for j in range(self.size_m):
-                position = Position(row=i, column=j, square=self._get_square_num(i, j))
-                if value := self.puzzle[i][j]:
-                    row.append(Cell(position=position, value=value))
-                else:
-                    row.append(
-                        Mark(
-                            position=position,
-                            candidates=self._get_candidates_for(position),
-                        )
-                    )
-            self.sudoku.append(row)
+        self._sudoku = self._build_sudoku(puzzle)
 
     def __getitem__(self, key: Tuple[int, int]) -> Union[Cell, Mark]:
-        i, j = key
-        return self.sudoku[i][j]
+        return self._sudoku[key]
+
+    def _build_sudoku(
+        self, puzzle: List[List[int]]
+    ) -> Dict[Tuple[int, int], Union[Cell, Mark]]:
+        sudoku: Dict[Tuple[int, int], Union[Cell, Mark]] = {}
+        for i, row in enumerate(puzzle):
+            for j, value in enumerate(row):
+                position = Position(row=i, column=j, square=self._get_square_num(i, j))
+                if value:
+                    sudoku[i, j] = Cell(position=position, value=value)
+                else:
+                    sudoku[i, j] = Mark(
+                        position=position,
+                        candidates=self._get_candidates_for(position),
+                    )
+        return sudoku
 
     def update_cells(self, cells: List[Union[Cell, Mark]]):
         for cell in cells:
-            if isinstance(cell, Cell):
-                self.puzzle[cell.position.row][cell.position.column] = cell.value
-            self.sudoku[cell.position.row][cell.position.column] = cell
+            self._sudoku[cell.position.row, cell.position.column] = cell
 
     def cells(self) -> List[Union[Cell, Mark]]:
         return [self[i, j] for i in range(self.size_n) for j in range(self.size_m)]
@@ -71,35 +69,25 @@ class Sudoku:
             result[cell.position.square].append(cell)
         return result
 
-    def _rows(self) -> List[List[int]]:
-        return self.puzzle[:]
-
-    def _columns(self) -> List[List[int]]:
-        return [
-            [self.puzzle[j][i] for j in range(self.size_m)] for i in range(self.size_n)
-        ]
-
-    def _squares(self) -> List[List[int]]:
-        result: List[List[int]] = [[] for i in range(self.size_n)]
-        for i in range(self.size_n):
-            for j in range(self.size_m):
-                result[self._get_square_num(i, j)].append(self.puzzle[i][j])
-        return result
-
     def _get_candidates_for(self, position: Position) -> Set[int]:
-        known_value = set(
-            self._rows()[position.row]
-            + self._columns()[position.column]
-            + self._squares()[position.square]
+        known_values = set(
+            self.puzzle[position.row]
+            + [self.puzzle[i][position.column] for i in range(self.size_n)]
+            + [
+                self.puzzle[i][j]
+                for i in range(self.size_n)
+                for j in range(self.size_m)
+                if self._get_square_num(i, j) == position.square
+            ]
         )
-        return set(range(1, 10)) - known_value
+        return set(range(1, 10)) - known_values
 
     def _get_square_num(self, i: int, j: int) -> int:
         return (i // self.square_size) * 3 + (j // self.square_size)
 
     def is_solved(self) -> bool:
         for house in self.rows() + self.columns() + self.squares():
-            if len({cell.value for cell in house if isinstance(cell, Cell)}) != 9:
+            if len({c.value for c in house if isinstance(c, Cell)}) != self.size_n:
                 return False
         return True
 

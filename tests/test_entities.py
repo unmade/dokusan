@@ -31,10 +31,7 @@ def test_update_cells(sudoku):
     mark = Mark(position=Position(0, 1, 0), candidates=[9])
     sudoku.update_cells([cell, mark])
     assert sudoku[0, 0] is cell
-    assert sudoku.puzzle[0][0] == 2
-
     assert sudoku[0, 1] is mark
-    assert sudoku.puzzle[0][1] == 0
 
 
 def test_cells(sudoku):
