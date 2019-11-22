@@ -98,20 +98,9 @@ class Sudoku:
         return (i // self.square_size) * 3 + (j // self.square_size)
 
     def is_solved(self) -> bool:
-        for i, row in enumerate(self.puzzle):
-            row_values = self._rows()[i]
-            if len(set(row_values)) != len(row_values):
+        for house in self.rows() + self.columns() + self.squares():
+            if len({cell.value for cell in house if isinstance(cell, Cell)}) != 9:
                 return False
-
-            for j, col in enumerate(row):
-                col_values = self._columns()[j]
-                if len(set(col_values)) != len(col_values):
-                    return False
-
-                square_values = self._squares()[self._get_square_num(i, j)]
-                if len(set(square_values)) != len(square_values):
-                    return False
-
         return True
 
     def intersection(self, *cells: Union[Cell, Mark]) -> List[Union[Cell, Mark]]:
