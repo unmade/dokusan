@@ -21,8 +21,10 @@ def test_lone_single():
     )
     lone_single = techniques.LoneSingle(sudoku).first()
 
-    assert lone_single.positions == [Position(1, 0, 0)]
-    assert lone_single.values == [5]
+    assert lone_single.combination.marks == [
+        Mark(position=Position(1, 0, 0), candidates={5})
+    ]
+    assert lone_single.combination.values == [5]
 
     by_position = operator.attrgetter("position")
     assert sorted(lone_single.changed_cells, key=by_position) == [
@@ -74,8 +76,10 @@ def test_hidden_single():
 
     hidden_single = techniques.HiddenSingle(sudoku).first()
 
-    assert hidden_single.positions == [Position(1, 6, 2)]
-    assert hidden_single.values == [7]
+    assert hidden_single.combination.marks == [
+        Mark(position=Position(1, 6, 2), candidates={4, 7, 8})
+    ]
+    assert hidden_single.combination.values == [7]
 
     by_position = operator.attrgetter("position")
     assert sorted(hidden_single.changed_cells, key=by_position) == [
@@ -121,8 +125,11 @@ def test_naked_pair():
 
     naked_pair = techniques.NakedPair(sudoku).first()
 
-    assert naked_pair.positions == [Position(6, 3, 7), Position(6, 6, 8)]
-    assert naked_pair.values == {2, 5}
+    assert naked_pair.combination.marks == [
+        Mark(position=Position(6, 3, 7), candidates={2, 5}),
+        Mark(position=Position(6, 6, 8), candidates={2, 5}),
+    ]
+    assert naked_pair.combination.values == [2, 5]
 
     by_position = operator.attrgetter("position")
     assert sorted(naked_pair.changed_cells, key=by_position) == [
@@ -177,12 +184,12 @@ def test_naked_triplet():
 
     naked_triplet = techniques.NakedTriplet(sudoku).first()
 
-    assert naked_triplet.positions == [
-        Position(6, 7, 8),
-        Position(8, 7, 8),
-        Position(8, 8, 8),
+    assert naked_triplet.combination.marks == [
+        Mark(position=Position(6, 7, 8), candidates={7, 9}),
+        Mark(position=Position(8, 7, 8), candidates={7, 8, 9}),
+        Mark(position=Position(8, 8, 8), candidates={7, 8, 9}),
     ]
-    assert naked_triplet.values == [7, 8, 9]
+    assert naked_triplet.combination.values == [7, 8, 9]
 
     by_position = operator.attrgetter("position")
     assert sorted(naked_triplet.changed_cells, key=by_position) == [
@@ -244,8 +251,11 @@ def test_omission():
 
     omission = techniques.Omission(sudoku).first()
 
-    assert omission.values == [7]
-    assert omission.positions == [Position(3, 7, 5), Position(3, 8, 5)]
+    assert omission.combination.marks == [
+        Mark(position=Position(3, 7, 5), candidates={1, 5, 7}),
+        Mark(position=Position(3, 8, 5), candidates={2, 7}),
+    ]
+    assert omission.combination.values == [7]
 
     assert omission.changed_cells == [
         Mark(position=Position(3, 3, 4), candidates={1, 2})
@@ -304,13 +314,12 @@ def test_xy_wing():
 
     xy_wing = techniques.XYWing(sudoku).first()
 
-    assert sorted(xy_wing.positions) == [
-        Position(3, 3, 4),
-        Position(5, 4, 4),
-        Position(5, 7, 5),
+    assert xy_wing.combination.marks == [
+        Mark(position=Position(3, 3, 4), candidates={1, 2}),
+        Mark(position=Position(5, 4, 4), candidates={2, 5}),
+        Mark(position=Position(5, 7, 5), candidates={1, 5}),
     ]
-    assert xy_wing.values == [1]
-
+    assert xy_wing.combination.values == [1]
     assert xy_wing.changed_cells == [
         Mark(position=Position(3, 7, 5), candidates={5, 7}),
         Mark(position=Position(5, 3, 4), candidates={2, 4}),
@@ -354,13 +363,13 @@ def test_unique_rectangle():
     assert len(list(techniques.UniqueRectangle(sudoku))) == 1
 
     unique_rectangle = techniques.UniqueRectangle(sudoku).first()
-    assert sorted(unique_rectangle.positions) == [
-        Position(6, 0, 6),
-        Position(6, 3, 7),
-        Position(7, 0, 6),
-        Position(7, 3, 7),
+    assert unique_rectangle.combination.marks == [
+        Mark(position=Position(6, 0, 6), candidates={2, 7}),
+        Mark(position=Position(6, 3, 7), candidates={2, 7}),
+        Mark(position=Position(7, 0, 6), candidates={2, 5, 7}),
+        Mark(position=Position(7, 3, 7), candidates={2, 7}),
     ]
-    assert unique_rectangle.values == [2, 7]
+    assert unique_rectangle.combination.values == [2, 7]
     assert unique_rectangle.changed_cells == [
         Mark(position=Position(7, 0, 6), candidates={5}),
     ]
