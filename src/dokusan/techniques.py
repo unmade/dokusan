@@ -21,8 +21,14 @@ class Result:
 
 @dataclass
 class Combination:
+    name: str
     marks: List[Mark]
     values: List[int]
+
+    def __str__(self) -> str:
+        values = (str(value) for value in self.values)
+        positions = (str((m.position.row, m.position.column)) for m in self.marks)
+        return f"{self.name}: `{', '.join(values)}` at {', '.join(positions)}"
 
 
 class Technique:
@@ -53,7 +59,9 @@ class LoneSingle(Technique):
     def _find(self) -> Iterator[Combination]:
         for mark in self.sudoku.marks():
             if len(mark.candidates) == 1:
-                yield Combination(marks=[mark], values=list(mark.candidates))
+                yield Combination(
+                    name="Lone Single", marks=[mark], values=list(mark.candidates)
+                )
 
     def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         cell = Cell(position=combination.marks[0].position, value=combination.values[0])
@@ -77,7 +85,7 @@ class HiddenSingle(Technique):
             for candidate, marks in groups.items():
                 if len(marks) == 1:
                     yield Combination(
-                        marks=marks, values=[candidate],
+                        name="Hidden Single", marks=marks, values=[candidate],
                     )
 
     def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
@@ -101,7 +109,7 @@ class NakedPair(Technique):
             for candidates, marks in groups.items():
                 if len(candidates) == 2 and len(marks) == 2:
                     yield Combination(
-                        marks=marks, values=list(candidates),
+                        name="Naked Pair", marks=marks, values=list(candidates),
                     )
 
     def _get_changed_cells(self, combination: Combination) -> List[Mark]:
@@ -124,6 +132,7 @@ class NakedTriplet(Technique):
                     triplet = [m for m in marks if len(m.candidates.union(pair)) < 4]
                     if len(triplet) == 3:
                         yield Combination(
+                            name="Naked Triplet",
                             marks=triplet,
                             values=list(set.union(*[m.candidates for m in triplet])),
                         )
@@ -148,7 +157,7 @@ class Omission(Technique):
 
             for candidate, marks in groups.items():
                 if len(marks) == 2:
-                    yield Combination(marks=marks, values=[candidate])
+                    yield Combination(name="Omission", marks=marks, values=[candidate])
 
     def _get_changed_cells(self, combination: Combination) -> List[Mark]:
         eliminated = set(combination.values)
@@ -166,6 +175,7 @@ class XYWing(Technique):
             if self._is_xy_wing(item):
                 wing = sorted(item, key=operator.attrgetter("position"))
                 yield Combination(
+                    name="XY Wing",
                     marks=wing,
                     values=list(set.intersection(*[m.candidates for m in wing[::2]])),
                 )
@@ -199,6 +209,7 @@ class UniqueRectangle(Technique):
                 rectangle = [self.sudoku[pos] for pos in itertools.product(rows, cols)]
                 if self._is_rect(rectangle):
                     yield Combination(
+                        name="Unique Rectangle",
                         marks=rectangle,
                         values=list(
                             set.intersection(*[m.candidates for m in rectangle])

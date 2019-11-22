@@ -5,6 +5,19 @@ from dokusan import techniques
 from dokusan.entities import Cell, Mark, Position, Sudoku
 
 
+def test_combination_as_str():
+    combination = techniques.Combination(
+        name="Naked Pair",
+        marks=[
+            Mark(position=Position(6, 3, 7), candidates={2, 5}),
+            Mark(position=Position(6, 6, 8), candidates={2, 5}),
+        ],
+        values=[2, 5],
+    )
+
+    assert str(combination) == "Naked Pair: `2, 5` at (6, 3), (6, 6)"
+
+
 def test_lone_single():
     sudoku = Sudoku(
         [

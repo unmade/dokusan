@@ -53,4 +53,4 @@ The following code displays all steps leading to solution:
     ])
 
     for step in list_steps(sudoku):
-        print(step)
+        print(step.combination)
