@@ -5,15 +5,15 @@ on:
     branches:
       - master
     tags:
-      - '[12].[0-9]+.[0-9]+'
+      - '[0-2].[0-9]+.[0-9]+*'
   pull_request:
     branches:
       - '**'
 
 
 jobs:
-  build:
 
+  lint-and-test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -32,17 +32,17 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
+        key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-${{ matrix.python-version }}-pip-
 
     - name: Cache pre-commit dependencies
       uses: actions/cache@v1
       with:
         path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ hashFiles('**/poetry.lock') }}
+        key: ${{ runner.os }}-${{ matrix.python-version }}-pre-commit-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          ${{ runner.os }}-pre-commit-
+          ${{ runner.os }}-${{ matrix.python-version }}-pre-commit-
 
     - name: Install dependencies
       run: |
@@ -53,12 +53,25 @@ jobs:
       run: |
         tox -v
 
-    - name: Publish package
-      if: matrix.python-version == 3.8 && startsWith(github.event.ref, 'refs/tags')
+  publish:
+    if: startsWith(github.event.ref, 'refs/tags')
+    needs: [lint-and-test]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.8"
+
+    - name: Build and Publish package
       env:
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        poetry config repositories.testpypi https://test.pypi.org/legacy/
+        python -m pip install --upgrade pip
+        pip install poetry
         poetry build
-        poetry publish -r testpypi -u $PYPI_USERNAME -p $PYPI_PASSWORD
+        poetry publish -u $PYPI_USERNAME -p $PYPI_PASSWORD

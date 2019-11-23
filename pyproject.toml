@@ -2,6 +2,7 @@
 name = "dokusan"
 version = "0.1.0-alpha"
 description = "Sudoku solver with step-by-step guidance"
+readme = "README.rst"
 authors = ["Aleksei Maslakov <lesha.maslakov@gmail.com>"]
 license = "GPL-3.0"
 packages = [
