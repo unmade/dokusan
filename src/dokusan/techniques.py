@@ -4,7 +4,7 @@ import itertools
 import operator
 from collections import Counter
 from dataclasses import dataclass
-from typing import Dict, Iterable, Iterator, List, Tuple, Union
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from dokusan.entities import Cell, Mark, Sudoku
 
@@ -70,7 +70,9 @@ class LoneSingle(Technique):
             Mark(position=mark.position, candidates=mark.candidates - eliminated)
             for mark in self.sudoku.intersection(cell)
             if isinstance(mark, Mark) and mark.candidates & eliminated
-        ] + [cell]
+        ] + [
+            cell  # type: ignore
+        ]
 
 
 class HiddenSingle(Technique):
@@ -95,7 +97,9 @@ class HiddenSingle(Technique):
             Mark(position=mark.position, candidates=mark.candidates - eliminated)
             for mark in self.sudoku.intersection(cell)
             if isinstance(mark, Mark) and mark.candidates & eliminated
-        ] + [cell]
+        ] + [
+            cell  # type: ignore
+        ]
 
 
 class NakedPair(Technique):
@@ -112,7 +116,7 @@ class NakedPair(Technique):
                         name="Naked Pair", marks=marks, values=list(candidates),
                     )
 
-    def _get_changed_cells(self, combination: Combination) -> List[Mark]:
+    def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         eliminated = set(combination.values)
         return [
             Mark(position=mark.position, candidates=mark.candidates - eliminated)
@@ -137,7 +141,7 @@ class NakedTriplet(Technique):
                             values=list(set.union(*[m.candidates for m in triplet])),
                         )
 
-    def _get_changed_cells(self, combination: Combination) -> List[Mark]:
+    def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         eliminated = set(combination.values)
         return [
             Mark(position=mark.position, candidates=mark.candidates - eliminated)
@@ -159,7 +163,7 @@ class Omission(Technique):
                 if len(marks) == 2:
                     yield Combination(name="Omission", marks=marks, values=[candidate])
 
-    def _get_changed_cells(self, combination: Combination) -> List[Mark]:
+    def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         eliminated = set(combination.values)
         return [
             Mark(position=mark.position, candidates=mark.candidates - eliminated)
@@ -190,7 +194,7 @@ class XYWing(Technique):
             return False
         return True
 
-    def _get_changed_cells(self, combination: Combination) -> List[Mark]:
+    def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         eliminated = set(combination.values)
         return [
             Mark(position=m.position, candidates=m.candidates - eliminated)
@@ -204,10 +208,9 @@ class UniqueRectangle(Technique):
         marks = [mark for mark in self.sudoku.marks() if len(mark.candidates) == 2]
         for edges in itertools.combinations(marks, r=3):
             if self._is_edges(edges):
-                rows = {edge.position.row for edge in edges}
-                cols = {edge.position.column for edge in edges}
-                rectangle = [self.sudoku[pos] for pos in itertools.product(rows, cols)]
-                if self._is_rect(rectangle):
+                rectangle = self._build_rectangle(edges)
+                # waiting for https://github.com/python/mypy/issues/7316
+                if rectangle is not None:
                     yield Combination(
                         name="Unique Rectangle",
                         marks=rectangle,
@@ -219,19 +222,27 @@ class UniqueRectangle(Technique):
     def _is_edges(self, marks: Iterable[Mark]) -> bool:
         if len(set.intersection(*[m.candidates for m in marks])) != 2:
             return False
-        combinations = itertools.combinations(marks, 2)
+        combinations = tuple(itertools.combinations(marks, 2))
+        if sum(a.position.row == b.position.row for a, b in combinations) != 1:
+            return False
+        if sum(a.position.column == b.position.column for a, b in combinations) != 1:
+            return False
         if sum(a.position.square == b.position.square for a, b in combinations) != 1:
             return False
         return True
 
-    def _is_rect(self, marks: Iterable[Mark]) -> bool:
-        if any(isinstance(cell, Cell) for cell in marks):
-            return False
-        if len(set.intersection(*[m.candidates for m in marks])) != 2:
-            return False
-        return True
+    def _build_rectangle(self, edges: Iterable[Mark]) -> Optional[List[Mark]]:
+        rows = {edge.position.row for edge in edges}
+        cols = {edge.position.column for edge in edges}
+        cells = [self.sudoku[i, j] for i, j in itertools.product(rows, cols)]
+        rectangle = [mark for mark in cells if isinstance(mark, Mark)]
+        if len(rectangle) != 4:
+            return None
+        if len(set.intersection(*[m.candidates for m in rectangle])) != 2:
+            return None
+        return rectangle
 
-    def _get_changed_cells(self, combination: Combination) -> List[Mark]:
+    def _get_changed_cells(self, combination: Combination) -> List[Union[Cell, Mark]]:
         return next(
             [Mark(position=edge_a.position, candidates=diff)]
             for edge_a, edge_b in itertools.combinations(combination.marks, 2)
