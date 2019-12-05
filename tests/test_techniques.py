@@ -39,12 +39,12 @@ def test_lone_single():
     ]
     assert lone_single.combination.values == [5]
 
+    assert lone_single.changes.cells == [Cell(position=Position(1, 0, 0), value=5)]
     by_position = operator.attrgetter("position")
-    assert sorted(lone_single.changed_cells, key=by_position) == [
+    assert sorted(lone_single.changes.marks, key=by_position) == [
         Mark(position=Position(0, 0, 0), candidates={2, 3}),
         Mark(position=Position(0, 1, 0), candidates={2, 3, 4, 6, 8}),
         Mark(position=Position(0, 2, 0), candidates={2, 6, 8}),
-        Cell(position=Position(1, 0, 0), value=5),
         Mark(position=Position(1, 1, 0), candidates={4, 6, 8, 9}),
         Mark(position=Position(1, 2, 0), candidates={1, 6, 8}),
         Mark(position=Position(1, 3, 1), candidates={4, 6, 7, 8}),
@@ -94,9 +94,9 @@ def test_hidden_single():
     ]
     assert hidden_single.combination.values == [7]
 
+    assert hidden_single.changes.cells == [Cell(position=Position(1, 6, 2), value=7)]
     by_position = operator.attrgetter("position")
-    assert sorted(hidden_single.changed_cells, key=by_position) == [
-        Cell(position=Position(1, 6, 2), value=7),
+    assert sorted(hidden_single.changes.marks, key=by_position) == [
         Mark(position=Position(4, 6, 5), candidates={2, 8, 9}),
         Mark(position=Position(6, 6, 8), candidates={2, 4, 5, 9}),
         Mark(position=Position(7, 6, 8), candidates={2, 4, 5, 8}),
@@ -144,8 +144,9 @@ def test_naked_pair():
     ]
     assert naked_pair.combination.values == [2, 5]
 
+    assert naked_pair.changes.cells == []
     by_position = operator.attrgetter("position")
-    assert sorted(naked_pair.changed_cells, key=by_position) == [
+    assert sorted(naked_pair.changes.marks, key=by_position) == [
         Mark(position=Position(6, 0, 6), candidates={1, 3, 4, 6}),
         Mark(position=Position(6, 1, 6), candidates={3, 7, 9}),
         Mark(position=Position(6, 2, 6), candidates={1, 3, 7}),
@@ -204,8 +205,9 @@ def test_naked_triplet():
     ]
     assert naked_triplet.combination.values == [7, 8, 9]
 
+    assert naked_triplet.changes.cells == []
     by_position = operator.attrgetter("position")
-    assert sorted(naked_triplet.changed_cells, key=by_position) == [
+    assert sorted(naked_triplet.changes.marks, key=by_position) == [
         Mark(position=Position(6, 8, 8), candidates={3, 4}),
         Mark(position=Position(7, 8, 8), candidates={3, 4}),
     ]
@@ -270,7 +272,8 @@ def test_omission():
     ]
     assert omission.combination.values == [7]
 
-    assert omission.changed_cells == [
+    assert omission.changes.cells == []
+    assert omission.changes.marks == [
         Mark(position=Position(3, 3, 4), candidates={1, 2})
     ]
 
@@ -333,7 +336,8 @@ def test_xy_wing():
         Mark(position=Position(5, 7, 5), candidates={1, 5}),
     ]
     assert xy_wing.combination.values == [1]
-    assert xy_wing.changed_cells == [
+    assert xy_wing.changes.cells == []
+    assert xy_wing.changes.marks == [
         Mark(position=Position(3, 7, 5), candidates={5, 7}),
         Mark(position=Position(5, 3, 4), candidates={2, 4}),
     ]
@@ -383,7 +387,8 @@ def test_unique_rectangle():
         Mark(position=Position(7, 3, 7), candidates={2, 7}),
     ]
     assert unique_rectangle.combination.values == [2, 7]
-    assert unique_rectangle.changed_cells == [
+    assert unique_rectangle.changes.cells == []
+    assert unique_rectangle.changes.marks == [
         Mark(position=Position(7, 0, 6), candidates={5}),
     ]
 
