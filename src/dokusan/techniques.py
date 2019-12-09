@@ -73,9 +73,7 @@ class PencilMarking(Technique):
 
     def _get_candidates(self, cell):
         intersection = self.sudoku.intersection(cell)
-        all_values = set(
-            range(1, self.sudoku.size.box[0] * self.sudoku.size.box[1] + 1)
-        )
+        all_values = set(range(1, self.sudoku.size + 1))
         return all_values - set(cell.value for cell in intersection if cell.value)
 
 

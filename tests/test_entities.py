@@ -58,14 +58,14 @@ def test_cells(sudoku):
 
 
 def test_rows(sudoku):
-    for i in range(sudoku.size.row):
-        for j in range(sudoku.size.column):
+    for i in range(sudoku.size):
+        for j in range(sudoku.size):
             assert sudoku.rows()[i][j] == sudoku[i, j]
 
 
 def test_columns(sudoku):
-    for i in range(sudoku.size.row):
-        for j in range(sudoku.size.column):
+    for i in range(sudoku.size):
+        for j in range(sudoku.size):
             assert sudoku.columns()[i][j] == sudoku[j, i]
 
 
