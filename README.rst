@@ -25,6 +25,8 @@ The following code displays all steps leading to solution:
             techniques.UniqueRectangle,
         )
         i = 1
+        for marks in techniques.PencilMarking(sudoku):
+            sudoku.update(marks.changes)
         while not sudoku.is_solved() and i == 1:
             i = 0
             for technique in all_techniques:

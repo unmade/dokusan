@@ -29,22 +29,6 @@ def _get_box_num(i: int, j: int, box_size: Tuple[int, int]) -> int:
     return (i // box_size[0]) * box_size[0] + (j // box_size[1])
 
 
-def _get_candidates_for(
-    position: Position, puzzle: List[List[int]], size: Size
-) -> Set[int]:
-    known_values = set(
-        puzzle[position.row]
-        + [puzzle[i][position.column] for i in range(size.row)]
-        + [
-            puzzle[i][j]
-            for i in range(size.row)
-            for j in range(size.column)
-            if _get_box_num(i, j, size.box) == position.box
-        ]
-    )
-    return set(range(1, 10)) - known_values
-
-
 class Sudoku:
     def __init__(self, *cells: Cell, size: Size = Size()):
         self.size = size
@@ -62,15 +46,7 @@ class Sudoku:
         for i, row in enumerate(puzzle):
             for j, value in enumerate(row):
                 position = Position(i, j, _get_box_num(i, j, size.box))
-                cells.append(
-                    Cell(
-                        position=position,
-                        value=value if value else None,
-                        candidates=set()
-                        if value
-                        else _get_candidates_for(position, puzzle, size),
-                    )
-                )
+                cells.append(Cell(position=position, value=value if value else None,))
         return cls(*cells, size=size)
 
     def __getitem__(self, key: Tuple[int, int]) -> Cell:

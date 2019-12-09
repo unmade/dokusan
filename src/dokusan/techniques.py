@@ -55,6 +55,30 @@ class Technique:
         raise NotImplementedError
 
 
+class PencilMarking(Technique):
+    def _find(self) -> Iterator[Combination]:
+        for cell in self.sudoku.cells():
+            if not cell.value:
+                yield Combination(
+                    name="Pencil Marking", cells=[cell], values=[],
+                )
+
+    def _get_changes(self, combination: Combination) -> List[Cell]:
+        result = []
+        for cell in combination.cells:
+            candidates = self._get_candidates(cell)
+            if not cell.candidates or cell.candidates - candidates:
+                result.append(Cell(position=cell.position, candidates=candidates))
+        return result
+
+    def _get_candidates(self, cell):
+        intersection = self.sudoku.intersection(cell)
+        all_values = set(
+            range(1, self.sudoku.size.box[0] * self.sudoku.size.box[1] + 1)
+        )
+        return all_values - set(cell.value for cell in intersection if cell.value)
+
+
 class LoneSingle(Technique):
     def _find(self) -> Iterator[Combination]:
         for cell in self.sudoku.cells():

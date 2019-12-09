@@ -1,8 +1,16 @@
 import operator
+from typing import List
 
 import pytest
 from dokusan import techniques
 from dokusan.entities import Cell, Position, Sudoku
+
+
+def make_sudoku_with_marks(puzzle: List[List[int]]) -> Sudoku:
+    sudoku = Sudoku.from_list(puzzle)
+    for marks in techniques.PencilMarking(sudoku):
+        sudoku.update(marks.changes)
+    return sudoku
 
 
 def test_combination_as_str():
@@ -18,8 +26,49 @@ def test_combination_as_str():
     assert str(combination) == "Naked Pair: `2, 5` at (6, 3), (6, 6)"
 
 
-def test_lone_single():
+def test_pencil_marking():
     sudoku = Sudoku.from_list(
+        [
+            [0, 0, 0, 0, 9, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 2, 3, 0, 0],
+            [0, 0, 7, 0, 0, 1, 8, 2, 5],
+            [6, 0, 4, 0, 3, 8, 9, 0, 0],
+            [8, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0, 0, 0, 0, 8],
+            [1, 7, 0, 0, 0, 0, 6, 0, 0],
+            [9, 0, 0, 0, 1, 0, 7, 4, 3],
+            [4, 0, 3, 0, 6, 0, 0, 0, 1],
+        ]
+    )
+
+    pencil_marks = techniques.PencilMarking(sudoku).first()
+    assert pencil_marks.changes == [
+        Cell(position=Position(0, 0, 0), candidates={2, 3, 5})
+    ]
+
+
+def test_pencil_marking_corrects_invalid_mark():
+    sudoku = make_sudoku_with_marks(
+        [
+            [0, 0, 0, 0, 9, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 2, 3, 0, 0],
+            [0, 0, 7, 0, 0, 1, 8, 2, 5],
+            [6, 0, 4, 0, 3, 8, 9, 0, 0],
+            [8, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0, 0, 0, 0, 8],
+            [1, 7, 0, 0, 0, 0, 6, 0, 0],
+            [9, 0, 0, 0, 1, 0, 7, 4, 3],
+            [4, 0, 3, 0, 6, 0, 0, 0, 1],
+        ]
+    )
+
+    sudoku.update([Cell(position=Position(1, 0, 0), candidates={3, 5})])
+    pencil_marks = techniques.PencilMarking(sudoku).first()
+    assert pencil_marks.changes == [Cell(position=Position(1, 0, 0), candidates={5})]
+
+
+def test_lone_single():
+    sudoku = make_sudoku_with_marks(
         [
             [0, 0, 0, 0, 9, 0, 1, 0, 0],
             [0, 0, 0, 0, 0, 2, 3, 0, 0],
@@ -54,7 +103,7 @@ def test_lone_single():
 
 
 def test_lone_single_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 0, 6, 7, 0, 5, 0, 0, 0],
             [0, 0, 0, 0, 0, 9, 0, 2, 5],
@@ -73,7 +122,7 @@ def test_lone_single_not_found():
 
 
 def test_hidden_single():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 0, 6, 7, 0, 5, 0, 0, 0],
             [0, 0, 0, 0, 0, 9, 0, 2, 5],
@@ -104,7 +153,7 @@ def test_hidden_single():
 
 
 def test_hidden_single_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -122,7 +171,7 @@ def test_hidden_single_not_found():
 
 
 def test_naked_pair():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -135,7 +184,6 @@ def test_naked_pair():
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
         ]
     )
-
     naked_pair = techniques.NakedPair(sudoku).first()
 
     assert naked_pair.combination.cells == [
@@ -154,7 +202,7 @@ def test_naked_pair():
 
 
 def test_naked_pair_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -181,7 +229,7 @@ def test_naked_pair_not_found():
 
 
 def test_naked_triplet():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -212,7 +260,7 @@ def test_naked_triplet():
 
 
 def test_naked_triplet_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -238,7 +286,7 @@ def test_naked_triplet_not_found():
 
 
 def test_omission():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -274,7 +322,7 @@ def test_omission():
 
 
 def test_omission_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -307,7 +355,7 @@ def test_omission_not_found():
 
 
 def test_xy_wing():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -338,7 +386,7 @@ def test_xy_wing():
 
 
 def test_xy_wing_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -357,7 +405,7 @@ def test_xy_wing_not_found():
 
 
 def test_unique_rectangle():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [0, 6, 0, 8, 0, 2, 3, 7, 1],
             [3, 0, 7, 1, 6, 5, 8, 0, 4],
@@ -387,7 +435,7 @@ def test_unique_rectangle():
 
 
 def test_unique_rectangle_not_found():
-    sudoku = Sudoku.from_list(
+    sudoku = make_sudoku_with_marks(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],

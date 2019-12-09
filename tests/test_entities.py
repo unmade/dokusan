@@ -27,7 +27,7 @@ def test_cell():
 
 
 def test_getitem(sudoku):
-    assert sudoku[0, 0] == Cell(position=Position(0, 0, 0), candidates={2, 6, 9})
+    assert sudoku[0, 0] == Cell(position=Position(0, 0, 0), candidates=set())
     assert sudoku[2, 3] == Cell(position=Position(2, 3, 1), value=9)
 
 
@@ -35,25 +35,25 @@ def test_sudoku():
     sudoku = Sudoku(
         *[
             Cell(position=Position(0, 0, 0), value=2),
-            Cell(position=Position(0, 1, 0), candidates={9}),
+            Cell(position=Position(0, 1, 0), candidates=set()),
         ],
     )
     assert sudoku[0, 0].value == 2
-    assert sudoku[0, 1].candidates == {9}
+    assert sudoku[0, 1].candidates == set()
     assert sudoku[0, 2].value is None
     assert len(sudoku[0, 2].candidates) == 0
 
 
 def test_update(sudoku):
     cell_a = Cell(position=Position(0, 0, 0), value=2)
-    cell_b = Cell(position=Position(0, 1, 0), candidates={9})
+    cell_b = Cell(position=Position(0, 1, 0), candidates=set())
     sudoku.update([cell_a, cell_b])
     assert sudoku[0, 0] is cell_a
     assert sudoku[0, 1] is cell_b
 
 
 def test_cells(sudoku):
-    assert sudoku.cells()[0].candidates == {2, 6, 9}
+    assert sudoku.cells()[0].candidates == set()
     assert sudoku.cells()[2].value == 7
 
 
