@@ -77,14 +77,14 @@ class LoneSingle(Technique):
 
 class HiddenSingle(Technique):
     def _find(self) -> Iterator[Combination]:
-        for house in self.sudoku.rows() + self.sudoku.columns() + self.sudoku.squares():
-            groups: Dict[int, List[Cell]] = {}
-            for cell in house:
+        for group in self.sudoku.groups():
+            candidate_map: Dict[int, List[Cell]] = {}
+            for cell in group:
                 if cell.candidates:
                     for candidate in cell.candidates:
-                        groups.setdefault(candidate, []).append(cell)
+                        candidate_map.setdefault(candidate, []).append(cell)
 
-            for candidate, cells in groups.items():
+            for candidate, cells in candidate_map.items():
                 if len(cells) == 1:
                     yield Combination(
                         name="Hidden Single", cells=cells, values=[candidate],
@@ -104,13 +104,13 @@ class HiddenSingle(Technique):
 
 class NakedPair(Technique):
     def _find(self) -> Iterator[Combination]:
-        for house in self.sudoku.rows() + self.sudoku.columns() + self.sudoku.squares():
-            groups: Dict[Tuple[int, ...], List[Cell]] = {}
-            for cell in house:
+        for group in self.sudoku.groups():
+            candidates_map: Dict[Tuple[int, ...], List[Cell]] = {}
+            for cell in group:
                 if cell.candidates:
-                    groups.setdefault(tuple(cell.candidates), []).append(cell)
+                    candidates_map.setdefault(tuple(cell.candidates), []).append(cell)
 
-            for candidates, cells in groups.items():
+            for candidates, cells in candidates_map.items():
                 if len(candidates) == 2 and len(cells) == 2:
                     yield Combination(
                         name="Naked Pair", cells=cells, values=list(candidates),
@@ -127,8 +127,8 @@ class NakedPair(Technique):
 
 class NakedTriplet(Technique):
     def _find(self) -> Iterator[Combination]:
-        for house in self.sudoku.rows() + self.sudoku.columns() + self.sudoku.squares():
-            cells = [cell for cell in house if cell.candidates]
+        for group in self.sudoku.groups():
+            cells = [cell for cell in group if cell.candidates]
             counter = Counter(tuple(cell.candidates) for cell in cells)
 
             for pair, count in counter.items():
@@ -152,14 +152,14 @@ class NakedTriplet(Technique):
 
 class Omission(Technique):
     def _find(self) -> Iterator[Combination]:
-        for house in self.sudoku.rows() + self.sudoku.columns() + self.sudoku.squares():
-            groups: Dict[int, List[Cell]] = {}
-            for cell in house:
+        for group in self.sudoku.groups():
+            candidate_map: Dict[int, List[Cell]] = {}
+            for cell in group:
                 if cell.candidates:
                     for candidate in cell.candidates:
-                        groups.setdefault(candidate, []).append(cell)
+                        candidate_map.setdefault(candidate, []).append(cell)
 
-            for candidate, cells in groups.items():
+            for candidate, cells in candidate_map.items():
                 if len(cells) == 2:
                     yield Combination(name="Omission", cells=cells, values=[candidate])
 
@@ -227,7 +227,7 @@ class UniqueRectangle(Technique):
             return False
         if sum(a.position.column == b.position.column for a, b in combinations) != 1:
             return False
-        if sum(a.position.square == b.position.square for a, b in combinations) != 1:
+        if sum(a.position.box == b.position.box for a, b in combinations) != 1:
             return False
         return True
 
@@ -235,7 +235,7 @@ class UniqueRectangle(Technique):
         rows = {edge.position.row for edge in edges}
         cols = {edge.position.column for edge in edges}
         cells = [self.sudoku[i, j] for i, j in itertools.product(rows, cols)]
-        rectangle = [mark for mark in cells if mark.candidates]
+        rectangle = [cell for cell in cells if cell.candidates]
         if len(rectangle) != 4:
             return None
         if len(set.intersection(*[m.candidates for m in rectangle])) != 2:

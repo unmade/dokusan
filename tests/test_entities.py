@@ -31,17 +31,17 @@ def test_getitem(sudoku):
     assert sudoku[2, 3] == Cell(position=Position(2, 3, 1), value=9)
 
 
-def test_update_cells(sudoku):
-    cell = Cell(position=Position(0, 0, 0), value=2)
-    mark = Cell(position=Position(0, 1, 0), candidates=[9])
-    sudoku.update_cells([cell, mark])
-    assert sudoku[0, 0] is cell
-    assert sudoku[0, 1] is mark
+def test_update(sudoku):
+    cell_a = Cell(position=Position(0, 0, 0), value=2)
+    cell_b = Cell(position=Position(0, 1, 0), candidates=[9])
+    sudoku.update([cell_a, cell_b])
+    assert sudoku[0, 0] is cell_a
+    assert sudoku[0, 1] is cell_b
 
 
 def test_cells(sudoku):
-    assert isinstance(sudoku.cells()[0], Cell)
-    assert isinstance(sudoku.cells()[2], Cell)
+    assert sudoku.cells()[0].candidates == {2, 6, 9}
+    assert sudoku.cells()[2].value == 7
 
 
 def test_rows(sudoku):
@@ -56,7 +56,7 @@ def test_columns(sudoku):
             assert sudoku.columns()[i][j] == sudoku[j, i]
 
 
-def test_squares(sudoku):
+def test_boxes(sudoku):
     index_map = [
         [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)],
         [(0, 3), (0, 4), (0, 5), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5)],
@@ -69,7 +69,7 @@ def test_squares(sudoku):
         [(6, 6), (6, 7), (6, 8), (7, 6), (7, 7), (7, 8), (8, 6), (8, 7), (8, 8)],
     ]
     expected = [[sudoku[pos] for pos in row] for row in index_map]
-    assert sudoku.squares() == expected
+    assert sudoku.boxes() == expected
 
 
 @pytest.mark.parametrize(
@@ -119,7 +119,7 @@ def test_squares(sudoku):
             ],
             False,
         ),
-        # duplicates in squares
+        # duplicates in boxes
         (
             [
                 [1, 2, 3, 4, 5, 6, 7, 8, 9],

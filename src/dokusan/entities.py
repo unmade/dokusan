@@ -5,7 +5,7 @@ from typing import Dict, List, NamedTuple, Optional, Set, Tuple
 class Position(NamedTuple):
     row: int
     column: int
-    square: int
+    box: int
 
 
 @dataclass
@@ -24,7 +24,7 @@ class Sudoku:
         self.puzzle = puzzle
         self.size_n = len(puzzle)
         self.size_m = len(puzzle[0])
-        self.square_size = 3
+        self.box_size = 3
         self._sudoku = self._build_sudoku(puzzle)
 
     def __getitem__(self, key: Tuple[int, int]) -> Cell:
@@ -34,7 +34,7 @@ class Sudoku:
         sudoku = {}
         for i, row in enumerate(puzzle):
             for j, value in enumerate(row):
-                position = Position(row=i, column=j, square=self._get_square_num(i, j))
+                position = Position(i, j, self._get_box_num(i, j))
                 sudoku[i, j] = Cell(
                     position=position,
                     value=value if value else None,
@@ -42,7 +42,7 @@ class Sudoku:
                 )
         return sudoku
 
-    def update_cells(self, cells: List[Cell]) -> None:
+    def update(self, cells: List[Cell]) -> None:
         for cell in cells:
             self._sudoku[cell.position.row, cell.position.column] = cell
 
@@ -55,11 +55,14 @@ class Sudoku:
     def columns(self) -> List[List[Cell]]:
         return [[self[j, i] for j in range(self.size_m)] for i in range(self.size_n)]
 
-    def squares(self) -> List[List[Cell]]:
+    def boxes(self) -> List[List[Cell]]:
         result: List[List[Cell]] = [[] for i in range(self.size_n)]
         for cell in self.cells():
-            result[cell.position.square].append(cell)
+            result[cell.position.box].append(cell)
         return result
+
+    def groups(self) -> List[List[Cell]]:
+        return self.rows() + self.columns() + self.boxes()
 
     def _get_candidates_for(self, position: Position) -> Set[int]:
         known_values = set(
@@ -69,26 +72,25 @@ class Sudoku:
                 self.puzzle[i][j]
                 for i in range(self.size_n)
                 for j in range(self.size_m)
-                if self._get_square_num(i, j) == position.square
+                if self._get_box_num(i, j) == position.box
             ]
         )
         return set(range(1, 10)) - known_values
 
-    def _get_square_num(self, i: int, j: int) -> int:
-        return (i // self.square_size) * 3 + (j // self.square_size)
+    def _get_box_num(self, i: int, j: int) -> int:
+        return (i // self.box_size) * 3 + (j // self.box_size)
 
     def is_solved(self) -> bool:
-        for house in self.rows() + self.columns() + self.squares():
-            if len({c.value for c in house if isinstance(c, Cell)}) != self.size_n:
+        for group in self.groups():
+            if len({cell.value for cell in group if cell.value}) != self.size_n:
                 return False
         return True
 
     def intersection(self, *cells: Cell) -> List[Cell]:
-        intersections = []
-        for cell in cells:
-            intersections.append(
-                {c.position for c in self.cells() if self.is_intersects(c, cell)}
-            )
+        intersections = [
+            {c.position for c in self.cells() if self.is_intersects(c, cell)}
+            for cell in cells
+        ]
         positions = set.intersection(*intersections)
         return [self[position.row, position.column] for position in positions]
 
@@ -96,5 +98,5 @@ class Sudoku:
         return cell_a.position != cell_b.position and (
             cell_a.position.row == cell_b.position.row
             or cell_a.position.column == cell_b.position.column
-            or cell_a.position.square == cell_b.position.square
+            or cell_a.position.box == cell_b.position.box
         )

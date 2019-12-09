@@ -33,7 +33,7 @@ The following code displays all steps leading to solution:
                 except techniques.NotFound as exc:
                     continue
                 else:
-                    sudoku.update_cells(result.changed_cells)
+                    sudoku.update(result.changes)
                     yield result
                     i = 1
                     break

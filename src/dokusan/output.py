@@ -46,16 +46,16 @@ def colorful(sudoku: Sudoku) -> str:
 
 
 def _build_horizontal_border(
-    sudoku: Sudoku, right: str, middle: str, cell_sep: str, square_sep: str, left: str
+    sudoku: Sudoku, right: str, middle: str, cell_sep: str, box_sep: str, left: str
 ) -> str:
     items = [f"{right}"]
     for i in range(sudoku.size_n):
-        for j in range(sudoku.square_size * 3):
+        for j in range(sudoku.box_size * 3):
             items.append(f"{middle}")
         if (i + 1) == sudoku.size_n:
             items.append(f"{left}\n")
-        elif (i + 1) % sudoku.square_size == 0:
-            items.append(f"{square_sep}")
+        elif (i + 1) % sudoku.box_size == 0:
+            items.append(f"{box_sep}")
         else:
             items.append(f"{cell_sep}")
     return "".join(items)

@@ -167,7 +167,7 @@ def test_naked_pair_not_found():
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
         ]
     )
-    sudoku.update_cells(
+    sudoku.update(
         [
             Cell(position=Position(6, 0, 6), candidates={1, 3, 4, 6}),
             Cell(position=Position(6, 1, 6), candidates={3, 7, 9}),
@@ -226,7 +226,7 @@ def test_naked_triplet_not_found():
         ]
     )
 
-    sudoku.update_cells(
+    sudoku.update(
         [
             Cell(position=Position(6, 8, 8), candidates={3, 4}),
             Cell(position=Position(7, 8, 8), candidates={3, 4}),
@@ -252,7 +252,7 @@ def test_omission():
         ]
     )
 
-    sudoku.update_cells(
+    sudoku.update(
         [
             Cell(position=Position(1, 1, 0), candidates={4, 6}),
             Cell(position=Position(1, 7, 2), candidates={6, 9}),
@@ -288,7 +288,7 @@ def test_omission_not_found():
         ]
     )
 
-    sudoku.update_cells(
+    sudoku.update(
         [
             Cell(position=Position(1, 1, 0), candidates={4, 6}),
             Cell(position=Position(1, 7, 2), candidates={6, 9}),
@@ -321,7 +321,7 @@ def test_xy_wing():
         ]
     )
 
-    sudoku.update_cells([Cell(position=Position(3, 3, 4), candidates={1, 2})])
+    sudoku.update([Cell(position=Position(3, 3, 4), candidates={1, 2})])
 
     xy_wing = techniques.XYWing(sudoku).first()
 
@@ -401,7 +401,7 @@ def test_unique_rectangle_not_found():
         ]
     )
 
-    sudoku.update_cells(
+    sudoku.update(
         [
             Cell(position=Position(6, 0, 6), candidates={1, 6}),
             Cell(position=Position(6, 8, 8), candidates={3, 4}),
