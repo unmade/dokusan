@@ -19,7 +19,7 @@ def test_combination_as_str():
 
 
 def test_lone_single():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [0, 0, 0, 0, 9, 0, 1, 0, 0],
             [0, 0, 0, 0, 0, 2, 3, 0, 0],
@@ -54,7 +54,7 @@ def test_lone_single():
 
 
 def test_lone_single_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 0, 6, 7, 0, 5, 0, 0, 0],
             [0, 0, 0, 0, 0, 9, 0, 2, 5],
@@ -73,7 +73,7 @@ def test_lone_single_not_found():
 
 
 def test_hidden_single():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 0, 6, 7, 0, 5, 0, 0, 0],
             [0, 0, 0, 0, 0, 9, 0, 2, 5],
@@ -104,7 +104,7 @@ def test_hidden_single():
 
 
 def test_hidden_single_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -122,7 +122,7 @@ def test_hidden_single_not_found():
 
 
 def test_naked_pair():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -154,7 +154,7 @@ def test_naked_pair():
 
 
 def test_naked_pair_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -181,7 +181,7 @@ def test_naked_pair_not_found():
 
 
 def test_naked_triplet():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -212,7 +212,7 @@ def test_naked_triplet():
 
 
 def test_naked_triplet_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],
@@ -238,7 +238,7 @@ def test_naked_triplet_not_found():
 
 
 def test_omission():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -274,7 +274,7 @@ def test_omission():
 
 
 def test_omission_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -307,7 +307,7 @@ def test_omission_not_found():
 
 
 def test_xy_wing():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -338,7 +338,7 @@ def test_xy_wing():
 
 
 def test_xy_wing_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
             [5, 0, 1, 0, 0, 2, 3, 0, 0],
@@ -357,7 +357,7 @@ def test_xy_wing_not_found():
 
 
 def test_unique_rectangle():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [0, 6, 0, 8, 0, 2, 3, 7, 1],
             [3, 0, 7, 1, 6, 5, 8, 0, 4],
@@ -387,7 +387,7 @@ def test_unique_rectangle():
 
 
 def test_unique_rectangle_not_found():
-    sudoku = Sudoku(
+    sudoku = Sudoku.from_list(
         [
             [9, 2, 6, 7, 3, 5, 4, 0, 0],
             [0, 0, 0, 6, 4, 9, 7, 2, 5],

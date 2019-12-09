@@ -6,7 +6,7 @@ from dokusan.entities import Cell, Position, Sudoku
 
 @pytest.fixture
 def sudoku():
-    return Sudoku(
+    return Sudoku.from_list(
         [
             [0, 0, 7, 0, 3, 0, 8, 0, 0],
             [0, 0, 0, 2, 0, 5, 0, 0, 0],
@@ -31,9 +31,22 @@ def test_getitem(sudoku):
     assert sudoku[2, 3] == Cell(position=Position(2, 3, 1), value=9)
 
 
+def test_sudoku():
+    sudoku = Sudoku(
+        *[
+            Cell(position=Position(0, 0, 0), value=2),
+            Cell(position=Position(0, 1, 0), candidates={9}),
+        ],
+    )
+    assert sudoku[0, 0].value == 2
+    assert sudoku[0, 1].candidates == {9}
+    assert sudoku[0, 2].value is None
+    assert len(sudoku[0, 2].candidates) == 0
+
+
 def test_update(sudoku):
     cell_a = Cell(position=Position(0, 0, 0), value=2)
-    cell_b = Cell(position=Position(0, 1, 0), candidates=[9])
+    cell_b = Cell(position=Position(0, 1, 0), candidates={9})
     sudoku.update([cell_a, cell_b])
     assert sudoku[0, 0] is cell_a
     assert sudoku[0, 1] is cell_b
@@ -45,14 +58,14 @@ def test_cells(sudoku):
 
 
 def test_rows(sudoku):
-    for i in range(sudoku.size_n):
-        for j in range(sudoku.size_m):
+    for i in range(sudoku.size.row):
+        for j in range(sudoku.size.column):
             assert sudoku.rows()[i][j] == sudoku[i, j]
 
 
 def test_columns(sudoku):
-    for i in range(sudoku.size_n):
-        for j in range(sudoku.size_m):
+    for i in range(sudoku.size.row):
+        for j in range(sudoku.size.column):
             assert sudoku.columns()[i][j] == sudoku[j, i]
 
 
@@ -152,7 +165,7 @@ def test_boxes(sudoku):
     ],
 )
 def test_is_solved_false(puzzle, solved):
-    sudoku = Sudoku(puzzle)
+    sudoku = Sudoku.from_list(puzzle)
     assert sudoku.is_solved() is solved
 
 

@@ -49,12 +49,12 @@ def _build_horizontal_border(
     sudoku: Sudoku, right: str, middle: str, cell_sep: str, box_sep: str, left: str
 ) -> str:
     items = [f"{right}"]
-    for i in range(sudoku.size_n):
-        for j in range(sudoku.box_size * 3):
+    for i in range(sudoku.size.row):
+        for j in range(sudoku.size.box[0] * 3):
             items.append(f"{middle}")
-        if (i + 1) == sudoku.size_n:
+        if (i + 1) == sudoku.size.row:
             items.append(f"{left}\n")
-        elif (i + 1) % sudoku.box_size == 0:
+        elif (i + 1) % sudoku.size.box[0] == 0:
             items.append(f"{box_sep}")
         else:
             items.append(f"{cell_sep}")

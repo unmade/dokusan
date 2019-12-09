@@ -40,7 +40,7 @@ The following code displays all steps leading to solution:
 
     _ = 0
 
-    sudoku = entities.Sudoku([
+    sudoku = entities.Sudoku.from_list([
         [_, _, _, _, 9, _, 1, _, _],
         [_, _, _, _, _, 2, 3, _, _],
         [_, _, 7, _, _, 1, 8, 2, 5],
