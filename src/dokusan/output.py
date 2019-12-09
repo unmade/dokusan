@@ -1,6 +1,6 @@
-from typing import List, Union
+from typing import List
 
-from dokusan.entities import Cell, Mark, Sudoku
+from dokusan.entities import Cell, Sudoku
 
 
 class Colors:
@@ -61,24 +61,16 @@ def _build_horizontal_border(
     return "".join(items)
 
 
-def _build_row(row: List[Union[Cell, Mark]], size: int = 3) -> str:
+def _build_row(row: List[Cell], size: int = 3) -> str:
     result = []
     for k in range(size):
         result.append("│")
         for j, cell in enumerate(row):
             start, end = k * 3, k * 3 + size
             for i in range(start, end):
-                if (
-                    isinstance(cell, Cell)
-                    and k == size // 2
-                    and i == (start + end) // 2
-                ):
+                if cell.value and k == size // 2 and i == (start + end) // 2:
                     result.append(f" {Colors.BOLD}{cell.value}{Colors.ENDC} ")
-                elif (
-                    isinstance(cell, Mark)
-                    and k == i // 3
-                    and (i + 1) in cell.candidates
-                ):
+                elif cell.candidates and k == i // 3 and (i + 1) in cell.candidates:
                     result.append(f" {Colors.ORANGE}{i + 1}{Colors.ENDC} ")
                 else:
                     result.append("   ")

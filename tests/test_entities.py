@@ -1,7 +1,7 @@
 import operator
 
 import pytest
-from dokusan.entities import Cell, Mark, Position, Sudoku
+from dokusan.entities import Cell, Position, Sudoku
 
 
 @pytest.fixture
@@ -21,27 +21,27 @@ def sudoku():
     )
 
 
+def test_cell():
+    with pytest.raises(ValueError):
+        Cell(position=Position(0, 0, 0), value=2, candidates={2, 6, 9})
+
+
 def test_getitem(sudoku):
-    assert sudoku[0, 0] == Mark(position=Position(0, 0, 0), candidates={2, 6, 9})
+    assert sudoku[0, 0] == Cell(position=Position(0, 0, 0), candidates={2, 6, 9})
     assert sudoku[2, 3] == Cell(position=Position(2, 3, 1), value=9)
 
 
 def test_update_cells(sudoku):
     cell = Cell(position=Position(0, 0, 0), value=2)
-    mark = Mark(position=Position(0, 1, 0), candidates=[9])
+    mark = Cell(position=Position(0, 1, 0), candidates=[9])
     sudoku.update_cells([cell, mark])
     assert sudoku[0, 0] is cell
     assert sudoku[0, 1] is mark
 
 
 def test_cells(sudoku):
-    assert isinstance(sudoku.cells()[0], Mark)
+    assert isinstance(sudoku.cells()[0], Cell)
     assert isinstance(sudoku.cells()[2], Cell)
-
-
-def test_marks(sudoku):
-    for mark in sudoku.marks():
-        assert isinstance(mark, Mark)
 
 
 def test_rows(sudoku):
