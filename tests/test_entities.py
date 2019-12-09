@@ -33,10 +33,8 @@ def test_getitem(sudoku):
 
 def test_sudoku():
     sudoku = Sudoku(
-        *[
-            Cell(position=Position(0, 0, 0), value=2),
-            Cell(position=Position(0, 1, 0), candidates=set()),
-        ],
+        Cell(position=Position(0, 0, 0), value=2),
+        Cell(position=Position(0, 1, 0), candidates=set()),
     )
     assert sudoku[0, 0].value == 2
     assert sudoku[0, 1].candidates == set()
