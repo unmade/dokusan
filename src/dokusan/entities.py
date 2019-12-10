@@ -56,11 +56,10 @@ class Sudoku:
         return self._sudoku[key]
 
     def update(self, cells: List[Cell]) -> None:
-        for cell in cells:
-            self._sudoku[cell.position.row, cell.position.column] = cell
+        self._sudoku.update((cell.position[:2], cell) for cell in cells)
 
     def cells(self) -> List[Cell]:
-        return [self[i, j] for i in range(self.size) for j in range(self.size)]
+        return list(self._sudoku.values())
 
     def rows(self) -> List[List[Cell]]:
         return [[self[i, j] for j in range(self.size)] for i in range(self.size)]

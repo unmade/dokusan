@@ -174,7 +174,7 @@ class NakedTriplet(Technique):
 
 class Omission(Technique):
     def _find(self) -> Iterator[Combination]:
-        for group in self.sudoku.groups():
+        for group in self.sudoku.boxes():
             candidate_map: Dict[int, List[Cell]] = {}
             for cell in group:
                 if cell.candidates:
