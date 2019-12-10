@@ -82,6 +82,13 @@ class Sudoku:
                 return False
         return True
 
+    def is_valid(self) -> bool:
+        for group in self.groups():
+            values = [cell.value for cell in group if cell.value]
+            if len(set(values)) != len(values):
+                return False
+        return True
+
     def intersection(self, *cells: Cell) -> List[Cell]:
         intersections = [
             {c.position for c in self.cells() if self.is_intersects(c, cell)}
