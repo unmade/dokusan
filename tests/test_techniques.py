@@ -285,7 +285,7 @@ def test_naked_triplet_not_found():
         techniques.NakedTriplet(sudoku).first()
 
 
-def test_omission():
+def test_locked_candidate():
     sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
@@ -310,18 +310,20 @@ def test_omission():
         ]
     )
 
-    omission = techniques.Omission(sudoku).first()
+    locked_candidate = techniques.LockedCandidate(sudoku).first()
 
-    assert omission.combination.cells == [
+    assert locked_candidate.combination.cells == [
         Cell(position=Position(3, 7, 5), candidates={1, 5, 7}),
         Cell(position=Position(3, 8, 5), candidates={2, 7}),
     ]
-    assert omission.combination.values == [7]
+    assert locked_candidate.combination.values == [7]
 
-    assert omission.changes == [Cell(position=Position(3, 3, 4), candidates={1, 2})]
+    assert locked_candidate.changes == [
+        Cell(position=Position(3, 3, 4), candidates={1, 2})
+    ]
 
 
-def test_omission_not_found():
+def test_locked_candidate_not_found():
     sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
@@ -351,7 +353,7 @@ def test_omission_not_found():
     )
 
     with pytest.raises(techniques.NotFound):
-        techniques.Omission(sudoku).first()
+        techniques.LockedCandidate(sudoku).first()
 
 
 def test_xy_wing():
