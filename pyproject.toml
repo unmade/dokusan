@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dokusan"
-version = "0.1.0-alpha"
+version = "0.1.0-alpha.1"
 description = "Sudoku solver with step-by-step guidance"
 readme = "README.rst"
 authors = ["Aleksei Maslakov <lesha.maslakov@gmail.com>"]
