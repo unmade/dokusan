@@ -1,110 +1,105 @@
-from dataclasses import dataclass
-from typing import Dict, List, NamedTuple, Set, Tuple, Union
+from dataclasses import dataclass, field
+from typing import List, NamedTuple, Optional, Set, Tuple, Type, TypeVar
+
+T = TypeVar("T", bound="Sudoku")
 
 
 class Position(NamedTuple):
     row: int
     column: int
-    square: int
+    box: int
+
+
+class BoxSize(NamedTuple):
+    width: int
+    length: int
+
+    def sequential(self, row: int, column: int) -> int:
+        return (row // self.width) * self.width + (column // self.length)
 
 
 @dataclass
 class Cell:
     position: Position
-    value: int
+    value: Optional[int] = None
+    candidates: Set[int] = field(default_factory=set)
 
-
-@dataclass
-class Mark:
-    position: Position
-    candidates: Set[int]
+    def __post_init__(self):
+        if self.value and self.candidates:
+            raise ValueError("`value` and `candidates` attrs are mutually exclusive")
 
 
 class Sudoku:
-    def __init__(self, puzzle: List[List[int]]):
-        self.puzzle = puzzle
-        self.size_n = len(puzzle)
-        self.size_m = len(puzzle[0])
-        self.square_size = 3
-        self._sudoku = self._build_sudoku(puzzle)
+    def __init__(self, *cells: Cell, box_size: BoxSize = BoxSize(3, 3)):
+        self.box_size = box_size
+        self.size = box_size.width * box_size.length
+        self._sudoku = {
+            (i, j): Cell(position=Position(i, j, box_size.sequential(i, j)))
+            for i in range(self.size)
+            for j in range(self.size)
+        }
+        for cell in cells:
+            self._sudoku[cell.position[:2]] = cell
 
-    def __getitem__(self, key: Tuple[int, int]) -> Union[Cell, Mark]:
-        return self._sudoku[key]
-
-    def _build_sudoku(
-        self, puzzle: List[List[int]]
-    ) -> Dict[Tuple[int, int], Union[Cell, Mark]]:
-        sudoku: Dict[Tuple[int, int], Union[Cell, Mark]] = {}
+    @classmethod
+    def from_list(
+        cls: Type[T], puzzle: List[List[int]], box_size: BoxSize = BoxSize(3, 3)
+    ) -> T:
+        cells = []
         for i, row in enumerate(puzzle):
             for j, value in enumerate(row):
-                position = Position(row=i, column=j, square=self._get_square_num(i, j))
-                if value:
-                    sudoku[i, j] = Cell(position=position, value=value)
-                else:
-                    sudoku[i, j] = Mark(
-                        position=position,
-                        candidates=self._get_candidates_for(position),
-                    )
-        return sudoku
+                position = Position(i, j, box_size.sequential(i, j))
+                cells.append(Cell(position=position, value=value if value else None,))
+        return cls(*cells, box_size=box_size)
 
-    def update_cells(self, cells: List[Union[Cell, Mark]]):
-        for cell in cells:
-            self._sudoku[cell.position.row, cell.position.column] = cell
+    def __getitem__(self, key: Tuple[int, int]) -> Cell:
+        return self._sudoku[key]
 
-    def cells(self) -> List[Union[Cell, Mark]]:
-        return [self[i, j] for i in range(self.size_n) for j in range(self.size_m)]
+    def update(self, cells: List[Cell]) -> None:
+        self._sudoku.update((cell.position[:2], cell) for cell in cells)
 
-    def marks(self) -> List[Mark]:
-        return [mark for mark in self.cells() if isinstance(mark, Mark)]
+    def cells(self) -> List[Cell]:
+        return list(self._sudoku.values())
 
-    def rows(self) -> List[List[Union[Cell, Mark]]]:
-        return [[self[i, j] for j in range(self.size_m)] for i in range(self.size_n)]
+    def rows(self) -> List[List[Cell]]:
+        return [[self[i, j] for j in range(self.size)] for i in range(self.size)]
 
-    def columns(self) -> List[List[Union[Cell, Mark]]]:
-        return [[self[j, i] for j in range(self.size_m)] for i in range(self.size_n)]
+    def columns(self) -> List[List[Cell]]:
+        return [[self[j, i] for j in range(self.size)] for i in range(self.size)]
 
-    def squares(self) -> List[List[Union[Cell, Mark]]]:
-        result: List[List[Union[Cell, Mark]]] = [[] for i in range(self.size_n)]
+    def boxes(self) -> List[List[Cell]]:
+        result: List[List[Cell]] = [[] for i in range(self.size)]
         for cell in self.cells():
-            result[cell.position.square].append(cell)
+            result[cell.position.box].append(cell)
         return result
 
-    def _get_candidates_for(self, position: Position) -> Set[int]:
-        known_values = set(
-            self.puzzle[position.row]
-            + [self.puzzle[i][position.column] for i in range(self.size_n)]
-            + [
-                self.puzzle[i][j]
-                for i in range(self.size_n)
-                for j in range(self.size_m)
-                if self._get_square_num(i, j) == position.square
-            ]
-        )
-        return set(range(1, 10)) - known_values
-
-    def _get_square_num(self, i: int, j: int) -> int:
-        return (i // self.square_size) * 3 + (j // self.square_size)
+    def groups(self) -> List[List[Cell]]:
+        return self.rows() + self.columns() + self.boxes()
 
     def is_solved(self) -> bool:
-        for house in self.rows() + self.columns() + self.squares():
-            if len({c.value for c in house if isinstance(c, Cell)}) != self.size_n:
+        for group in self.groups():
+            if len({cell.value for cell in group if cell.value}) != self.size:
                 return False
         return True
 
-    def intersection(self, *cells: Union[Cell, Mark]) -> List[Union[Cell, Mark]]:
-        intersections = []
-        for cell in cells:
-            intersections.append(
-                {c.position for c in self.cells() if self.is_intersects(c, cell)}
-            )
+    def is_valid(self) -> bool:
+        for group in self.groups():
+            values = [cell.value for cell in group if cell.value]
+            if len(set(values)) != len(values):
+                return False
+        return True
+
+    def intersection(self, *cells: Cell) -> List[Cell]:
+        intersections = [
+            {c.position for c in self.cells() if self.is_intersects(c, cell)}
+            for cell in cells
+        ]
         positions = set.intersection(*intersections)
         return [self[position.row, position.column] for position in positions]
 
-    def is_intersects(
-        self, cell_a: Union[Cell, Mark], cell_b: Union[Cell, Mark]
-    ) -> bool:
+    def is_intersects(self, cell_a: Cell, cell_b: Cell) -> bool:
         return cell_a.position != cell_b.position and (
             cell_a.position.row == cell_b.position.row
             or cell_a.position.column == cell_b.position.column
-            or cell_a.position.square == cell_b.position.square
+            or cell_a.position.box == cell_b.position.box
         )

@@ -14,33 +14,36 @@ The following code displays all steps leading to solution:
     from dokusan import entities, techniques
 
 
+    class Unsolvable(Exception):
+        pass
+
+
     def list_steps(sudoku: entities.Sudoku):
         all_techniques = (
+            techniques.PencilMarking,
             techniques.LoneSingle,
             techniques.HiddenSingle,
             techniques.NakedPair,
             techniques.NakedTriplet,
-            techniques.Omission,
+            techniques.LockedCandidate,
             techniques.XYWing,
             techniques.UniqueRectangle,
         )
-        i = 1
-        while not sudoku.is_solved() and i == 1:
-            i = 0
+        while not sudoku.is_solved():
             for technique in all_techniques:
                 try:
                     result = technique(sudoku).first()
                 except techniques.NotFound as exc:
                     continue
                 else:
-                    sudoku.update_cells(result.changed_cells)
+                    sudoku.update(result.changes)
                     yield result
-                    i = 1
                     break
+                raise Unsolvable
 
     _ = 0
 
-    sudoku = entities.Sudoku([
+    sudoku = entities.Sudoku.from_list([
         [_, _, _, _, 9, _, 1, _, _],
         [_, _, _, _, _, 2, 3, _, _],
         [_, _, 7, _, _, 1, 8, 2, 5],
