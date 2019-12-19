@@ -1,5 +1,6 @@
+import itertools
 from dataclasses import dataclass, field
-from typing import List, NamedTuple, Optional, Set, Tuple, Type, TypeVar
+from typing import Iterator, List, NamedTuple, Optional, Set, Tuple, Type, TypeVar
 
 T = TypeVar("T", bound="Sudoku")
 
@@ -16,6 +17,12 @@ class BoxSize(NamedTuple):
 
     def sequential(self, row: int, column: int) -> int:
         return (row // self.width) * self.width + (column // self.length)
+
+    def indexes(self, row: int, column: int) -> Iterator[Tuple[int, int]]:
+        return itertools.product(
+            (i + row // self.width * self.width for i in range(self.length)),
+            (j + column // self.width * self.width for j in range(self.length)),
+        )
 
 
 @dataclass
@@ -90,12 +97,20 @@ class Sudoku:
         return True
 
     def intersection(self, *cells: Cell) -> List[Cell]:
-        intersections = [
-            {c.position for c in self.cells() if self.is_intersects(c, cell)}
-            for cell in cells
-        ]
-        positions = set.intersection(*intersections)
-        return [self[position.row, position.column] for position in positions]
+        intersections: Set[Tuple[int, int]] = set()
+        for i, cell in enumerate(cells):
+            row, column = cell.position.row, cell.position.column
+            cross = set.union(
+                {(row, i) for i in range(self.size)},
+                {(i, column) for i in range(self.size)},
+                {(i, j) for i, j in self.box_size.indexes(row, column)},
+            )
+            if i == 0:
+                intersections |= cross
+            else:
+                intersections &= cross
+        intersections -= {(cell.position.row, cell.position.column) for cell in cells}
+        return [self[position] for position in intersections]
 
     def is_intersects(self, cell_a: Cell, cell_b: Cell) -> bool:
         return cell_a.position != cell_b.position and (
