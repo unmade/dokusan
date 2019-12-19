@@ -1,0 +1,66 @@
+import random
+from typing import List
+
+from dokusan import exceptions, solvers, stats
+from dokusan.entities import BoxSize, Cell, Position, Sudoku
+
+
+def generate(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sudoku:
+    sudoku = Sudoku(*_generate_initial_cells(box_size), box_size=box_size)
+    solution = solvers.backtrack(sudoku)
+
+    best_sudoku = Sudoku(*solution.cells())
+    best_rank = 0
+
+    iterations = max(50, min(min_rank, 300))
+    for i in range(iterations):
+        size = random.randint(1, 2)
+        rows = [random.randint(0, solution.size - 1) for _ in range(size)]
+        columns = [random.randint(0, solution.size - 1) for _ in range(size)]
+        cells = [solution[row, column] for (row, column) in zip(rows, columns)]
+        if all(cell.value for cell in cells):
+            solution.update([Cell(position=cell.position) for cell in cells])
+            try:
+                rank = stats.rank(solution)
+            except exceptions.MultipleSolutions:
+                solution.update(cells)
+                continue
+            if rank > best_rank:
+                best_sudoku = Sudoku(*solution.cells())
+                best_rank = rank
+                continue
+
+    return best_sudoku
+
+
+def _generate_initial_cells(box_size: BoxSize = BoxSize(3, 3)) -> List[Cell]:
+    size = box_size.width * box_size.length
+    all_values = set(range(1, size + 1))
+
+    values = random.sample(all_values, k=size)
+    box_values = [
+        values[i * box_size.length : i * box_size.length + box_size.length]
+        for i in range(box_size.width)
+    ]
+
+    while (row_values := random.sample(all_values.difference(box_values[0]), k=3)) and (
+        sorted(row_values) == sorted(box_values[1])
+        or sorted(row_values) == sorted(box_values[2])
+    ):
+        continue
+    row_values += random.sample(all_values.difference(box_values[0], row_values), k=3)
+
+    return [
+        Cell(
+            position=Position(row=i, column=j, box=box_size.sequential(i, j),),
+            value=box_values[i][j],
+        )
+        for i in range(box_size.width)
+        for j in range(box_size.length)
+    ] + [
+        Cell(
+            position=Position(row=0, column=i, box=box_size.sequential(0, i),),
+            value=value,
+        )
+        for i, value in enumerate(row_values, start=3)
+    ]

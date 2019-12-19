@@ -39,7 +39,7 @@ The following code displays all steps leading to solution:
                     sudoku.update(result.changes)
                     yield result
                     break
-                raise Unsolvable
+            raise Unsolvable
 
     _ = 0
 
