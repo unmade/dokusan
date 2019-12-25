@@ -1,7 +1,7 @@
 import operator
 
 import pytest
-from dokusan.entities import Cell, Position, Sudoku
+from dokusan.entities import BoxSize, Cell, Position, Sudoku
 
 
 @pytest.fixture
@@ -21,9 +21,66 @@ def sudoku():
     )
 
 
+@pytest.fixture
+def sudoku_12x12():
+    return Sudoku.from_list(
+        [
+            [3, 0, 0, 9, 7, 4, 11, 1, 0, 6, 8, 12],
+            [8, 0, 0, 6, 9, 2, 12, 0, 11, 4, 3, 0],
+            [0, 0, 0, 4, 0, 3, 6, 5, 0, 2, 0, 10],
+            [12, 5, 6, 1, 11, 10, 0, 0, 0, 9, 2, 3],
+            [2, 8, 4, 10, 6, 0, 7, 3, 12, 0, 11, 5],
+            [7, 11, 9, 3, 12, 0, 5, 0, 4, 0, 0, 6],
+            [10, 4, 0, 7, 2, 11, 3, 0, 9, 0, 0, 0],
+            [0, 9, 0, 0, 0, 0, 0, 12, 10, 0, 6, 0],
+            [0, 3, 1, 12, 0, 8, 10, 9, 2, 7, 0, 11],
+            [4, 0, 0, 0, 10, 0, 2, 7, 6, 0, 1, 9],
+            [9, 2, 10, 0, 3, 0, 1, 0, 0, 0, 7, 0],
+            [0, 6, 0, 11, 0, 12, 0, 0, 0, 0, 5, 2],
+        ],
+        box_size=BoxSize(3, 4),
+    )
+
+
 def test_cell():
     with pytest.raises(ValueError):
         Cell(position=Position(0, 0, 0), value=2, candidates={2, 6, 9})
+
+
+def test_str(sudoku_12x12):
+    assert str(sudoku_12x12) == (
+        "300974B1068C"
+        "800692C0B430"
+        "00040365020A"
+        "C561BA000923"
+        "284A6073C0B5"
+        "7B93C0504006"
+        "A4072B309000"
+        "0900000CA060"
+        "031C08A9270B"
+        "4000A0276019"
+        "92A030100070"
+        "060B0C000052"
+    )
+
+
+def test_from_string(sudoku_12x12):
+    sudoku = Sudoku.from_string(
+        "300974B1068C"
+        "800692C0B430"
+        "00040365020A"
+        "C561BA000923"
+        "284A6073C0B5"
+        "7B93C0504006"
+        "A4072B309000"
+        "0900000CA060"
+        "031C08A9270B"
+        "4000A0276019"
+        "92A030100070"
+        "060B0C000052",
+        box_size=BoxSize(3, 4),
+    )
+    assert sudoku.cells() == sudoku_12x12.cells()
 
 
 def test_getitem(sudoku):
