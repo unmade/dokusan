@@ -1,8 +1,17 @@
 import itertools
+import string
 from dataclasses import dataclass, field
 from typing import Iterator, List, NamedTuple, Optional, Set, Tuple, Type, TypeVar
 
 T = TypeVar("T", bound="Sudoku")
+
+DIGIT_TO_STR_MAP = dict(
+    zip(
+        range(len(string.digits) + len(string.ascii_uppercase)),
+        string.digits + string.ascii_uppercase,
+    )
+)
+STR_TO_DIGIT_MAP = dict(zip(DIGIT_TO_STR_MAP.values(), DIGIT_TO_STR_MAP.keys()))
 
 
 class Position(NamedTuple):
@@ -58,6 +67,30 @@ class Sudoku:
                 position = Position(i, j, box_size.sequential(i, j))
                 cells.append(Cell(position=position, value=value if value else None,))
         return cls(*cells, box_size=box_size)
+
+    @classmethod
+    def from_string(cls: Type[T], puzzle: str, box_size: BoxSize = BoxSize(3, 3)) -> T:
+        size = box_size.width * box_size.length
+        return cls.from_list(
+            [
+                [
+                    STR_TO_DIGIT_MAP.get(value, 0)
+                    for value in puzzle[i * size : i * size + size]
+                ]
+                for i in range(size)
+            ],
+            box_size=box_size,
+        )
+
+    def __str__(self) -> str:
+        return "".join(
+            "".join(
+                # see https://github.com/python/typing/issues/448
+                DIGIT_TO_STR_MAP.get(cell.value, "0")  # type: ignore
+                for cell in row
+            )
+            for row in self.rows()
+        )
 
     def __getitem__(self, key: Tuple[int, int]) -> Cell:
         return self._sudoku[key]
