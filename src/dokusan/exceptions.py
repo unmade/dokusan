@@ -12,3 +12,7 @@ class NoCandidates(DokusanError):
 
 class MultipleSolutions(DokusanError):
     pass
+
+
+class Unsolvable(DokusanError):
+    pass

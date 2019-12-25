@@ -77,6 +77,15 @@ class PencilMarking(Technique):
         return all_values - set(cell.value for cell in intersection if cell.value)
 
 
+class BulkPencilMarking(PencilMarking):
+    def _find(self) -> Iterator[Combination]:
+        yield Combination(
+            name="Bulk Pencil Marking",
+            cells=[cell for cell in self.sudoku.cells() if not cell.value],
+            values=[],
+        )
+
+
 class LoneSingle(Technique):
     def _find(self) -> Iterator[Combination]:
         for cell in self.sudoku.cells():
