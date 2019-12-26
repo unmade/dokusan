@@ -3,7 +3,7 @@ from typing import Iterator
 
 from dokusan import exceptions, techniques
 from dokusan.entities import Cell, Sudoku
-from dokusan.techniques import Result
+from dokusan.techniques import Step
 
 
 def eliminate(sudoku: Sudoku) -> Sudoku:
@@ -21,8 +21,8 @@ def eliminate(sudoku: Sudoku) -> Sudoku:
     while has_result:
         for technique in all_techniques:
             has_result = False
-            for result in technique(_sudoku):
-                _sudoku.update(result.changes)
+            for step in technique(_sudoku):
+                _sudoku.update(step.changes)
                 has_result = True
     return _sudoku
 
@@ -52,7 +52,7 @@ def backtrack(sudoku: Sudoku) -> Sudoku:
     return _sudoku
 
 
-def steps(sudoku: Sudoku) -> Iterator[Result]:
+def steps(sudoku: Sudoku) -> Iterator[Step]:
     _sudoku = Sudoku(*sudoku.cells(), box_size=sudoku.box_size)
 
     all_techniques = (
@@ -72,12 +72,12 @@ def steps(sudoku: Sudoku) -> Iterator[Result]:
     while not _sudoku.is_solved():
         for technique in all_techniques:
             try:
-                result = technique(_sudoku).first()
+                step = technique(_sudoku).first()
             except techniques.NotFound:
                 continue
             else:
-                _sudoku.update(result.changes)
-                yield result
+                _sudoku.update(step.changes)
+                yield step
                 break
         else:
             raise exceptions.Unsolvable

@@ -8,8 +8,7 @@ from dokusan.entities import BoxSize, Cell, Position, Sudoku
 
 def make_sudoku_with_marks(puzzle: List[List[int]], box_size: BoxSize) -> Sudoku:
     sudoku = Sudoku.from_list(puzzle, box_size=box_size)
-    for marks in techniques.PencilMarking(sudoku):
-        sudoku.update(marks.changes)
+    sudoku.update(techniques.BulkPencilMarking(sudoku).first().changes)
     return sudoku
 
 

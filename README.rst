@@ -116,6 +116,7 @@ so to ensure sudoku has desired rank one can do the following:
 
     from dokusan import generators, stats
 
+
     min_rank = 450
     while stats.rank(sudoku := generators.random_sudoku(min_rank=min_rank)) < min_rank:
         continue
