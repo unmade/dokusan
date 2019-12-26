@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dokusan"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 description = "Sudoku solver with step-by-step guidance"
 keywords = ["sudoku", "solver", "generator", "step"]
 readme = "README.rst"
