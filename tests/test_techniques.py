@@ -67,6 +67,26 @@ def test_pencil_marking_corrects_invalid_mark():
     assert pencil_marks.changes == [Cell(position=Position(1, 0, 0), candidates={5})]
 
 
+def test_bulk_pencil_marking():
+    sudoku = Sudoku.from_list(
+        [
+            [0, 0, 0, 0, 9, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 2, 3, 0, 0],
+            [0, 0, 7, 0, 0, 1, 8, 2, 5],
+            [6, 0, 4, 0, 3, 8, 9, 0, 0],
+            [8, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0, 0, 0, 0, 8],
+            [1, 7, 0, 0, 0, 0, 6, 0, 0],
+            [9, 0, 0, 0, 1, 0, 7, 4, 3],
+            [4, 0, 3, 0, 6, 0, 0, 0, 1],
+        ]
+    )
+
+    pencil_marks = techniques.BulkPencilMarking(sudoku).first()
+    assert len(pencil_marks.changes) == 51
+    assert len(list(techniques.BulkPencilMarking(sudoku))) == 1
+
+
 def test_lone_single():
     sudoku = make_sudoku_with_marks(
         [

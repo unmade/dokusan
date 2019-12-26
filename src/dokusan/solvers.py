@@ -1,16 +1,22 @@
 import operator
+from typing import Iterator
 
 from dokusan import exceptions, techniques
 from dokusan.entities import Cell, Sudoku
+from dokusan.techniques import Result
 
 
 def eliminate(sudoku: Sudoku) -> Sudoku:
     _sudoku = Sudoku(*sudoku.cells(), box_size=sudoku.box_size)
+
     all_techniques = (
-        techniques.PencilMarking,
         techniques.LoneSingle,
         techniques.HiddenSingle,
     )
+
+    for step in techniques.BulkPencilMarking(_sudoku):
+        _sudoku.update(step.changes)
+
     has_result = True
     while has_result:
         for technique in all_techniques:
@@ -44,3 +50,34 @@ def backtrack(sudoku: Sudoku) -> Sudoku:
             raise exceptions.NoCandidates
 
     return _sudoku
+
+
+def steps(sudoku: Sudoku) -> Iterator[Result]:
+    _sudoku = Sudoku(*sudoku.cells(), box_size=sudoku.box_size)
+
+    all_techniques = (
+        techniques.LoneSingle,
+        techniques.HiddenSingle,
+        techniques.NakedPair,
+        techniques.NakedTriplet,
+        techniques.LockedCandidate,
+        techniques.XYWing,
+        techniques.UniqueRectangle,
+    )
+
+    for step in techniques.BulkPencilMarking(_sudoku):
+        _sudoku.update(step.changes)
+        yield step
+
+    while not _sudoku.is_solved():
+        for technique in all_techniques:
+            try:
+                result = technique(_sudoku).first()
+            except techniques.NotFound:
+                continue
+            else:
+                _sudoku.update(result.changes)
+                yield result
+                break
+        else:
+            raise exceptions.Unsolvable

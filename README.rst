@@ -14,60 +14,72 @@ Installation
 Quickstart
 ==========
 
-Sudoku Solver
--------------
+Sudoku Solvers
+--------------
 
-The following code displays all steps leading to solution:
+Step-by-step solver
+*******************
+
+This solver tries to solve sudoku using human-like strategies.
+Currently following techniques are supported:
+
+- Naked/Hidden singles
+- Naked Pairs/Triplets
+- Locked Candidate
+- XY-Wing
+- Unique Rectangle
+
+For example to see all techniques that sudoku has:
 
 .. code-block:: python
 
-    from dokusan import entities, techniques
+    from dokusan import solvers
+    from dokusan.entities import Sudoku
 
 
-    class Unsolvable(Exception):
-        pass
+    sudoku = Sudoku.from_list(
+        [
+            [0, 0, 0, 0, 9, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 2, 3, 0, 0],
+            [0, 0, 7, 0, 0, 1, 8, 2, 5],
+            [6, 0, 4, 0, 3, 8, 9, 0, 0],
+            [8, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0, 0, 0, 0, 8],
+            [1, 7, 0, 0, 0, 0, 6, 0, 0],
+            [9, 0, 0, 0, 1, 0, 7, 4, 3],
+            [4, 0, 3, 0, 6, 0, 0, 0, 1],
+        ]
+    )
+
+    {step.combination.name for step in solvers.steps(sudoku)}
+
+Backtracking-based solver
+*************************
+
+This solver is based on backtracking algorithm,
+however slightly modified to work fast
+
+.. code-block:: python
+
+    from dokusan import solvers
+    from dokusan.entities import Sudoku
 
 
-    def list_steps(sudoku: entities.Sudoku):
-        all_techniques = (
-            techniques.PencilMarking,
-            techniques.LoneSingle,
-            techniques.HiddenSingle,
-            techniques.NakedPair,
-            techniques.NakedTriplet,
-            techniques.LockedCandidate,
-            techniques.XYWing,
-            techniques.UniqueRectangle,
-        )
-        while not sudoku.is_solved():
-            for technique in all_techniques:
-                try:
-                    result = technique(sudoku).first()
-                except techniques.NotFound as exc:
-                    continue
-                else:
-                    sudoku.update(result.changes)
-                    yield result
-                    break
-            else:
-                raise Unsolvable
+    sudoku = Sudoku.from_list(
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 3, 0, 8, 5],
+            [0, 0, 1, 0, 2, 0, 0, 0, 0],
+            [0, 0, 0, 5, 0, 7, 0, 0, 0],
+            [0, 0, 4, 0, 0, 0, 1, 0, 0],
+            [0, 9, 0, 0, 0, 0, 0, 0, 0],
+            [5, 0, 0, 0, 0, 0, 0, 7, 3],
+            [0, 0, 2, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 4, 0, 0, 0, 9],
+        ]
+    )
 
-    _ = 0
-
-    sudoku = entities.Sudoku.from_list([
-        [_, _, _, _, 9, _, 1, _, _],
-        [_, _, _, _, _, 2, 3, _, _],
-        [_, _, 7, _, _, 1, 8, 2, 5],
-        [6, _, 4, _, 3, 8, 9, _, _],
-        [8, 1, _, _, _, _, _, _, _],
-        [_, _, 9, _, _, _, _, _, 8],
-        [1, 7, _, _, _, _, 6, _, _],
-        [9, _, _, _, 1, _, 7, 4, 3],
-        [4, _, 3, _, 6, _, _, _, 1],
-    ])
-
-    for step in list_steps(sudoku):
-        print(step.combination)
+    solvers.backtrack(sudoku)
 
 Sudoku Generator
 ----------------
