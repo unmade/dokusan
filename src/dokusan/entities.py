@@ -46,7 +46,7 @@ class Cell:
 
 
 class Sudoku:
-    def __init__(self, *cells: Cell, box_size: BoxSize = BoxSize(3, 3)):
+    def __init__(self, *cells: Cell, box_size: BoxSize):
         self.box_size = box_size
         self.size = box_size.width * box_size.length
         self._sudoku = {
@@ -58,9 +58,7 @@ class Sudoku:
             self._sudoku[cell.position[:2]] = cell
 
     @classmethod
-    def from_list(
-        cls: Type[T], puzzle: List[List[int]], box_size: BoxSize = BoxSize(3, 3)
-    ) -> T:
+    def from_list(cls: Type[T], puzzle: List[List[int]], box_size: BoxSize) -> T:
         cells = []
         for i, row in enumerate(puzzle):
             for j, value in enumerate(row):
@@ -69,7 +67,7 @@ class Sudoku:
         return cls(*cells, box_size=box_size)
 
     @classmethod
-    def from_string(cls: Type[T], puzzle: str, box_size: BoxSize = BoxSize(3, 3)) -> T:
+    def from_string(cls: Type[T], puzzle: str, box_size: BoxSize) -> T:
         size = box_size.width * box_size.length
         return cls.from_list(
             [

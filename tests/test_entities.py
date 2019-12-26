@@ -17,7 +17,8 @@ def sudoku():
             [5, 0, 0, 1, 0, 8, 0, 0, 9],
             [0, 0, 0, 5, 0, 3, 0, 0, 0],
             [0, 0, 2, 0, 9, 0, 5, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
 
@@ -47,7 +48,7 @@ def test_cell():
         Cell(position=Position(0, 0, 0), value=2, candidates={2, 6, 9})
 
 
-def test_str(sudoku_12x12):
+def test_string_representation(sudoku_12x12):
     assert str(sudoku_12x12) == (
         "300974B1068C"
         "800692C0B430"
@@ -92,6 +93,7 @@ def test_sudoku():
     sudoku = Sudoku(
         Cell(position=Position(0, 0, 0), value=2),
         Cell(position=Position(0, 1, 0), candidates=set()),
+        box_size=BoxSize(3, 3),
     )
     assert sudoku[0, 0].value == 2
     assert sudoku[0, 1].candidates == set()
@@ -220,7 +222,7 @@ def test_boxes(sudoku):
     ],
 )
 def test_is_solved_false(puzzle, solved):
-    sudoku = Sudoku.from_list(puzzle)
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3))
     assert sudoku.is_solved() is solved
 
 
@@ -304,7 +306,7 @@ def test_is_solved_false(puzzle, solved):
     ],
 )
 def test_is_valid(puzzle, is_valid):
-    sudoku = Sudoku.from_list(puzzle)
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3))
     assert sudoku.is_valid() is is_valid
 
 

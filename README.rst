@@ -34,7 +34,7 @@ For example to see all techniques that sudoku has:
 .. code-block:: python
 
     from dokusan import solvers
-    from dokusan.entities import Sudoku
+    from dokusan.entities import BoxSize, Sudoku
 
 
     sudoku = Sudoku.from_list(
@@ -48,7 +48,8 @@ For example to see all techniques that sudoku has:
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     {step.combination.name for step in solvers.steps(sudoku)}
@@ -62,7 +63,7 @@ however slightly modified to work fast
 .. code-block:: python
 
     from dokusan import solvers
-    from dokusan.entities import Sudoku
+    from dokusan.entities import BoxSize, Sudoku
 
 
     sudoku = Sudoku.from_list(
@@ -76,7 +77,8 @@ however slightly modified to work fast
             [5, 0, 0, 0, 0, 0, 0, 7, 3],
             [0, 0, 2, 0, 1, 0, 0, 0, 0],
             [0, 0, 0, 0, 4, 0, 0, 0, 9],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     solvers.backtrack(sudoku)

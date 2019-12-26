@@ -5,11 +5,11 @@ from dokusan import exceptions, solvers, stats
 from dokusan.entities import BoxSize, Cell, Position, Sudoku
 
 
-def random_sudoku(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sudoku:
+def random_sudoku(min_rank: int = 150, box_size: BoxSize = BoxSize(3, 3)) -> Sudoku:
     sudoku = Sudoku(*_random_initial_cells(box_size), box_size=box_size)
     solution = solvers.backtrack(sudoku)
 
-    best_sudoku = Sudoku(*solution.cells())
+    best_sudoku = Sudoku(*solution.cells(), box_size=box_size)
     best_rank = 0
 
     iterations = max(50, min(min_rank, 300))
@@ -26,14 +26,14 @@ def random_sudoku(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sud
                 solution.update(cells)
                 continue
             if rank > best_rank:
-                best_sudoku = Sudoku(*solution.cells())
+                best_sudoku = Sudoku(*solution.cells(), box_size=box_size)
                 best_rank = rank
                 continue
 
     return best_sudoku
 
 
-def _random_initial_cells(box_size: BoxSize = BoxSize(3, 3)) -> List[Cell]:
+def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
     size = box_size.width * box_size.length
     all_values = set(range(1, size + 1))
 
