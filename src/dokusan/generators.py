@@ -5,8 +5,8 @@ from dokusan import exceptions, solvers, stats
 from dokusan.entities import BoxSize, Cell, Position, Sudoku
 
 
-def generate(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sudoku:
-    sudoku = Sudoku(*_generate_initial_cells(box_size), box_size=box_size)
+def random_sudoku(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sudoku:
+    sudoku = Sudoku(*_random_initial_cells(box_size), box_size=box_size)
     solution = solvers.backtrack(sudoku)
 
     best_sudoku = Sudoku(*solution.cells())
@@ -33,7 +33,7 @@ def generate(box_size: BoxSize = BoxSize(3, 3), min_rank: int = 150) -> Sudoku:
     return best_sudoku
 
 
-def _generate_initial_cells(box_size: BoxSize = BoxSize(3, 3)) -> List[Cell]:
+def _random_initial_cells(box_size: BoxSize = BoxSize(3, 3)) -> List[Cell]:
     size = box_size.width * box_size.length
     all_values = set(range(1, size + 1))
 
