@@ -1,6 +1,6 @@
 import pytest
 from dokusan import exceptions, solvers
-from dokusan.entities import Sudoku
+from dokusan.entities import BoxSize, Sudoku
 
 
 def test_eliminate():
@@ -15,7 +15,8 @@ def test_eliminate():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
     expected = Sudoku.from_list(
         [
@@ -28,7 +29,8 @@ def test_eliminate():
             [1, 7, 0, 3, 0, 4, 6, 0, 0],
             [9, 0, 0, 0, 1, 5, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     solution = solvers.eliminate(given)
@@ -50,6 +52,7 @@ def test_backtrack():
             [0, 8, 0, 2, 0, 0, 0, 0, 0],
             [0, 6, 0, 7, 0, 0, 3, 8, 2],
         ],
+        box_size=BoxSize(3, 3),
     )
     solution = solvers.backtrack(given)
     assert solution.is_solved() is True
@@ -68,7 +71,8 @@ def test_steps():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     assert [step.combination.name for step in solvers.steps(given)] == [
@@ -101,7 +105,8 @@ def test_steps_raises_unsolvable():
             [9, 0, 1, 0, 0, 3, 0, 0, 0],
             [0, 0, 0, 0, 6, 0, 0, 0, 3],
             [6, 0, 2, 0, 0, 0, 0, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     with pytest.raises(exceptions.Unsolvable):

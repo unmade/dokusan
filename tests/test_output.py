@@ -85,7 +85,7 @@ def test_colorful(puzzle):
         "└─────────┴─────────┴─────────╨─────────┴─────────┴─────────╨─────────┴─────────┴─────────┘\n"
     )
 
-    sudoku = entities.Sudoku.from_list(puzzle)
+    sudoku = entities.Sudoku.from_list(puzzle, box_size=entities.BoxSize(3, 3))
     sudoku.update(
         [
             entities.Cell(position=entities.Position(0, 1, 0), candidates={8, 2, 3}),

@@ -1,6 +1,6 @@
 import pytest
 from dokusan import exceptions, stats
-from dokusan.entities import Sudoku
+from dokusan.entities import BoxSize, Sudoku
 
 
 @pytest.mark.parametrize(
@@ -68,12 +68,12 @@ from dokusan.entities import Sudoku
         ),
     ],
 )
-def test_rate(puzzle, solutions, rank):
-    sudoku = Sudoku.from_list(puzzle)
+def test_rank(puzzle, solutions, rank):
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3),)
     assert stats.rank(sudoku) == rank
 
 
-def test_rate_sudoku_with_multiple_solutions():
+def test_rank_sudoku_with_multiple_solutions():
     puzzle = [
         [8, 1, 0, 0, 0, 0, 6, 7, 9],
         [0, 0, 0, 6, 7, 9, 0, 2, 0],
@@ -85,6 +85,6 @@ def test_rate_sudoku_with_multiple_solutions():
         [0, 0, 0, 0, 0, 0, 4, 0, 0],
         [0, 0, 1, 0, 3, 0, 0, 8, 0],
     ]
-    sudoku = Sudoku.from_list(puzzle)
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3),)
     with pytest.raises(exceptions.MultipleSolutions):
         stats.rank(sudoku)

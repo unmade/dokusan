@@ -3,13 +3,12 @@ from typing import List
 
 import pytest
 from dokusan import techniques
-from dokusan.entities import Cell, Position, Sudoku
+from dokusan.entities import BoxSize, Cell, Position, Sudoku
 
 
-def make_sudoku_with_marks(puzzle: List[List[int]]) -> Sudoku:
-    sudoku = Sudoku.from_list(puzzle)
-    for marks in techniques.PencilMarking(sudoku):
-        sudoku.update(marks.changes)
+def make_sudoku_with_marks(puzzle: List[List[int]], box_size: BoxSize) -> Sudoku:
+    sudoku = Sudoku.from_list(puzzle, box_size=box_size)
+    sudoku.update(techniques.BulkPencilMarking(sudoku).first().changes)
     return sudoku
 
 
@@ -38,7 +37,8 @@ def test_pencil_marking():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     pencil_marks = techniques.PencilMarking(sudoku).first()
@@ -59,7 +59,8 @@ def test_pencil_marking_corrects_invalid_mark():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update([Cell(position=Position(1, 0, 0), candidates={3, 5})])
@@ -79,7 +80,8 @@ def test_bulk_pencil_marking():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     pencil_marks = techniques.BulkPencilMarking(sudoku).first()
@@ -99,7 +101,8 @@ def test_lone_single():
             [1, 7, 0, 0, 0, 0, 6, 0, 0],
             [9, 0, 0, 0, 1, 0, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
     lone_single = techniques.LoneSingle(sudoku).first()
 
@@ -134,7 +137,8 @@ def test_lone_single_not_found():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 0, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     with pytest.raises(techniques.NotFound):
@@ -153,7 +157,8 @@ def test_hidden_single():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 0, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     hidden_single = techniques.HiddenSingle(sudoku).first()
@@ -184,7 +189,8 @@ def test_hidden_single_not_found():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
     with pytest.raises(techniques.NotFound):
         techniques.HiddenSingle(sudoku).first()
@@ -202,7 +208,8 @@ def test_naked_pair():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
     naked_pair = techniques.NakedPair(sudoku).first()
 
@@ -233,7 +240,8 @@ def test_naked_pair_not_found():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
     sudoku.update(
         [
@@ -260,7 +268,8 @@ def test_naked_triplet():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     naked_triplet = techniques.NakedTriplet(sudoku).first()
@@ -291,7 +300,8 @@ def test_naked_triplet_not_found():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update(
@@ -317,7 +327,8 @@ def test_locked_candidate():
             [1, 7, 0, 3, 0, 4, 6, 0, 0],
             [9, 0, 0, 0, 1, 5, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update(
@@ -355,7 +366,8 @@ def test_locked_candidate_not_found():
             [1, 7, 0, 3, 0, 4, 6, 0, 0],
             [9, 0, 0, 0, 1, 5, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update(
@@ -388,7 +400,8 @@ def test_xy_wing():
             [1, 7, 0, 3, 0, 4, 6, 0, 0],
             [9, 0, 0, 0, 1, 5, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update([Cell(position=Position(3, 3, 4), candidates={1, 2})])
@@ -419,7 +432,8 @@ def test_xy_wing_not_found():
             [1, 7, 0, 3, 0, 4, 6, 0, 0],
             [9, 0, 0, 0, 1, 5, 7, 4, 3],
             [4, 0, 3, 0, 6, 0, 0, 0, 1],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     with pytest.raises(techniques.NotFound):
@@ -438,7 +452,8 @@ def test_unique_rectangle():
             [0, 3, 8, 0, 0, 0, 6, 1, 5],
             [0, 0, 6, 0, 8, 1, 4, 0, 3],
             [1, 4, 0, 5, 3, 6, 7, 8, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     assert len(list(techniques.UniqueRectangle(sudoku))) == 1
@@ -468,7 +483,8 @@ def test_unique_rectangle_not_found():
             [0, 0, 0, 0, 8, 0, 0, 0, 0],
             [0, 0, 0, 9, 1, 0, 0, 6, 0],
             [0, 0, 0, 4, 0, 3, 1, 0, 0],
-        ]
+        ],
+        box_size=BoxSize(3, 3),
     )
 
     sudoku.update(

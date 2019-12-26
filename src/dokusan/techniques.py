@@ -4,7 +4,7 @@ import itertools
 import operator
 from collections import Counter
 from dataclasses import dataclass
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple
+from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
 from dokusan.entities import Cell, Sudoku
 
@@ -14,7 +14,7 @@ class NotFound(Exception):
 
 
 @dataclass
-class Result:
+class Step:
     combination: Combination
     changes: List[Cell]
 
@@ -35,14 +35,14 @@ class Technique:
     def __init__(self, sudoku: Sudoku):
         self.sudoku = sudoku
 
-    def __iter__(self) -> Iterator[Result]:
+    def __iter__(self) -> Iterator[Step]:
         return (
-            Result(combination=combination, changes=changes)
+            Step(combination=combination, changes=changes)
             for combination in self._find()
             if (changes := self._get_changes(combination))
         )
 
-    def first(self) -> Result:
+    def first(self) -> Step:
         try:
             return next(iter(self))
         except StopIteration:
@@ -71,7 +71,7 @@ class PencilMarking(Technique):
                 result.append(Cell(position=cell.position, candidates=candidates))
         return result
 
-    def _get_candidates(self, cell):
+    def _get_candidates(self, cell) -> Set[int]:
         intersection = self.sudoku.intersection(cell)
         all_values = set(range(1, self.sudoku.size + 1))
         return all_values - set(cell.value for cell in intersection if cell.value)
