@@ -30,9 +30,6 @@ def eliminate(sudoku: Sudoku) -> Sudoku:
 def backtrack(sudoku: Sudoku) -> Sudoku:
     _sudoku = eliminate(sudoku)
 
-    if not _sudoku.is_valid():
-        raise exceptions.InvalidSudoku
-
     cells = sorted(
         (cell for cell in _sudoku.cells() if not cell.value),
         key=operator.attrgetter("candidates"),

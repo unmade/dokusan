@@ -81,7 +81,7 @@ def test_from_string(sudoku_12x12):
         "060B0C000052",
         box_size=BoxSize(3, 4),
     )
-    assert sudoku.cells() == sudoku_12x12.cells()
+    assert list(sudoku.cells()) == list(sudoku_12x12.cells())
 
 
 def test_getitem(sudoku):
@@ -110,20 +110,23 @@ def test_update(sudoku):
 
 
 def test_cells(sudoku):
-    assert sudoku.cells()[0].candidates == set()
-    assert sudoku.cells()[2].value == 7
+    cells = list(sudoku.cells())
+    assert cells[0].candidates == set()
+    assert cells[2].value == 7
 
 
 def test_rows(sudoku):
+    rows = list(sudoku.rows())
     for i in range(sudoku.size):
         for j in range(sudoku.size):
-            assert sudoku.rows()[i][j] == sudoku[i, j]
+            assert rows[i][j] == sudoku[i, j]
 
 
 def test_columns(sudoku):
+    columns = list(sudoku.columns())
     for i in range(sudoku.size):
         for j in range(sudoku.size):
-            assert sudoku.columns()[i][j] == sudoku[j, i]
+            assert columns[i][j] == sudoku[j, i]
 
 
 def test_boxes(sudoku):
@@ -139,7 +142,7 @@ def test_boxes(sudoku):
         [(6, 6), (6, 7), (6, 8), (7, 6), (7, 7), (7, 8), (8, 6), (8, 7), (8, 8)],
     ]
     expected = [[sudoku[pos] for pos in row] for row in index_map]
-    assert sudoku.boxes() == expected
+    assert list(sudoku.boxes()) == expected
 
 
 @pytest.mark.parametrize(
@@ -313,8 +316,8 @@ def test_is_valid(puzzle, is_valid):
 def test_intersection_for_single_cell(sudoku):
     by_position = operator.attrgetter("position")
     expected = (
-        sudoku.rows()[0][1:]
-        + sudoku.columns()[0][1:]
+        list(sudoku.rows())[0][1:]
+        + list(sudoku.columns())[0][1:]
         + [sudoku[1, 1], sudoku[1, 2], sudoku[2, 1], sudoku[2, 2]]
     )
     assert sorted(sudoku.intersection(sudoku[0, 0]), key=by_position) == sorted(
@@ -324,7 +327,7 @@ def test_intersection_for_single_cell(sudoku):
 
 def test_intersection_between_two_cells(sudoku):
     by_position = operator.attrgetter("position")
-    expected = sudoku.rows()[0][1:8]
+    expected = list(sudoku.rows())[0][1:8]
     assert sorted(
         sudoku.intersection(sudoku[0, 0], sudoku[0, 8]), key=by_position
     ) == sorted(expected, key=by_position)
@@ -332,7 +335,7 @@ def test_intersection_between_two_cells(sudoku):
 
 def test_intersection_between_three_cells(sudoku):
     by_position = operator.attrgetter("position")
-    expected = sudoku.rows()[0][1:3]
+    expected = list(sudoku.rows())[0][1:3]
     assert sorted(
         sudoku.intersection(sudoku[0, 0], sudoku[0, 8], sudoku[2, 2]), key=by_position
     ) == sorted(expected, key=by_position)

@@ -96,23 +96,24 @@ class Sudoku:
     def update(self, cells: List[Cell]) -> None:
         self._sudoku.update((cell.position[:2], cell) for cell in cells)
 
-    def cells(self) -> List[Cell]:
-        return list(self._sudoku.values())
+    def cells(self) -> Iterator[Cell]:
+        return iter(self._sudoku.values())
 
-    def rows(self) -> List[List[Cell]]:
-        return [[self[i, j] for j in range(self.size)] for i in range(self.size)]
+    def rows(self) -> Iterator[List[Cell]]:
+        return ([self[i, j] for j in range(self.size)] for i in range(self.size))
 
-    def columns(self) -> List[List[Cell]]:
-        return [[self[j, i] for j in range(self.size)] for i in range(self.size)]
+    def columns(self) -> Iterator[List[Cell]]:
+        return ([self[j, i] for j in range(self.size)] for i in range(self.size))
 
-    def boxes(self) -> List[List[Cell]]:
-        result: List[List[Cell]] = [[] for i in range(self.size)]
-        for cell in self.cells():
-            result[cell.position.box].append(cell)
-        return result
+    def boxes(self) -> Iterator[List[Cell]]:
+        return (
+            [self[x, y] for x, y in self.box_size.indexes(i, j)]
+            for i in range(0, self.size, self.box_size.length)
+            for j in range(0, self.size, self.box_size.width)
+        )
 
-    def groups(self) -> List[List[Cell]]:
-        return self.rows() + self.columns() + self.boxes()
+    def groups(self) -> Iterator[List[Cell]]:
+        return itertools.chain(self.rows(), self.columns(), self.boxes())
 
     def is_solved(self) -> bool:
         for group in self.groups():

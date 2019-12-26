@@ -35,7 +35,7 @@ def colorful(sudoku: Sudoku) -> str:
     for i, row in enumerate(sudoku.rows()):
         result.append(_build_row(row))
 
-        if i == len(sudoku.rows()) - 1:
+        if i == sudoku.size - 1:
             result.append(_build_horizontal_border(sudoku, "└", "─", "┴", "╨", "┘"))
         elif (i + 1) % 3 == 0:
             result.append(_build_horizontal_border(sudoku, "╞", "═", "╪", "╬", "╡"))
