@@ -48,5 +48,7 @@ jobs:
         pip install tox
 
     - name: Lint and Test with tox
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
-        tox -v
+        tox -v && tox -e codecov

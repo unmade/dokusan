@@ -10,5 +10,6 @@ source =
 parallel = true
 
 [report]
+precision = 2
+fail_under = 99
 show_missing = true
-omit = *__main__*
