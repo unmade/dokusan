@@ -7,14 +7,14 @@ from dokusan.entities import BoxSize, Cell, Position, Sudoku
 MAX_ITERATIONS = 300
 
 
-def random_sudoku(min_rank: int = 150, box_size: BoxSize = BoxSize(3, 3)) -> Sudoku:
+def random_sudoku(avg_rank: int = 150, box_size: BoxSize = BoxSize(3, 3)) -> Sudoku:
     sudoku = Sudoku(*_random_initial_cells(box_size), box_size=box_size)
     solution = solvers.backtrack(sudoku)
 
     best_sudoku = Sudoku(*solution.cells(), box_size=box_size)
     best_rank = 0
 
-    iterations = min(min_rank, MAX_ITERATIONS)
+    iterations = min(avg_rank, MAX_ITERATIONS)
     for i in range(iterations):
         size = random.randint(1, 2)
         rows = [random.randint(0, solution.size - 1) for _ in range(size)]

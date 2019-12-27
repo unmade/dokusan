@@ -30,7 +30,7 @@ Overview
 
 .. end-badges
 
-Sudoku solver with step-by-step guidance
+Sudoku generator and solver with a step-by-step guidance
 
 Installation
 ============
@@ -125,19 +125,19 @@ To generate a new sudoku:
     from dokusan import generators
 
 
-    generators.random_sudoku(min_rank=150)
+    generators.random_sudoku(avg_rank=150)
 
 Ranking and Sudoku difficulty
 *****************************
 
-``min_rank`` option is used to roughly estimate the difficulty of the sudoku.
+``avg_rank`` option roughly defines the difficulty of the sudoku.
 Sudoku with rank lower than 100 contains only naked/hidden singles.
-Sudoku with rank greater than 150 might contain
+Sudoku with rank greater than 150 contains
 Naked Subsets/Locked Candidate/XY Wing/etc...,
 however this is not always guaranteed.
 
 For higher ranks it is also not guaranteed that generated Sudoku rank
-will be higher than provided ``min_rank``,
+will be higher than provided ``avg_rank``,
 so to ensure sudoku has desired rank one can do the following:
 
 .. code-block:: python
@@ -145,6 +145,6 @@ so to ensure sudoku has desired rank one can do the following:
     from dokusan import generators, stats
 
 
-    min_rank = 450
-    while stats.rank(sudoku := generators.random_sudoku(min_rank=min_rank)) < min_rank:
+    avg_rank = 450
+    while stats.rank(sudoku := generators.random_sudoku(avg_rank)) < avg_rank:
         continue
