@@ -2,6 +2,34 @@
 Overview
 ========
 
+.. start-badges
+
+.. image:: https://github.com/unmade/dokusan/workflows/Lint%20and%20tests/badge.svg
+    :alt: Build Status
+    :target: https://github.com/unmade/dokusan/blob/master/.github/workflows/lint-and-tests.yml
+
+.. image:: https://codecov.io/gh/unmade/dokusan/branch/master/graph/badge.svg
+    :alt: Coverage Status
+    :target: https://codecov.io/gh/unmade/dokusan
+
+.. image:: https://img.shields.io/pypi/v/dokusan.svg
+    :alt: PyPI Package latest release
+    :target: https://pypi.org/project/dokusan
+
+.. image:: https://img.shields.io/pypi/wheel/dokusan.svg
+    :alt: PyPI Wheel
+    :target: https://pypi.org/project/dokusan
+
+.. image:: https://img.shields.io/pypi/pyversions/dokusan.svg
+    :alt: Supported versions
+    :target: https://pypi.org/project/dokusan
+
+.. image:: https://img.shields.io/badge/License-GPLv3-purple.svg
+    :alt: GPLv3 License
+    :target: https://github.com/unmade/dokusan/blob/master/LICENSE
+
+.. end-badges
+
 Sudoku solver with step-by-step guidance
 
 Installation
