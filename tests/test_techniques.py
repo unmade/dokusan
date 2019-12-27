@@ -315,7 +315,7 @@ def test_naked_triplet_not_found():
         techniques.NakedTriplet(sudoku).first()
 
 
-def test_locked_candidate():
+def test_locked_candidate_in_a_box():
     sudoku = make_sudoku_with_marks(
         [
             [2, 0, 0, 5, 9, 3, 1, 0, 0],
@@ -351,6 +351,35 @@ def test_locked_candidate():
 
     assert locked_candidate.changes == [
         Cell(position=Position(3, 3, 4), candidates={1, 2})
+    ]
+
+
+def test_locked_candidate_in_a_row():
+    sudoku = make_sudoku_with_marks(
+        [
+            [9, 0, 0, 5, 3, 1, 2, 8, 0],
+            [0, 2, 5, 7, 0, 4, 9, 3, 0],
+            [0, 3, 0, 0, 0, 2, 0, 4, 0],
+            [4, 8, 1, 2, 5, 7, 6, 9, 3],
+            [3, 5, 9, 0, 0, 8, 0, 0, 2],
+            [7, 6, 2, 3, 1, 9, 8, 5, 4],
+            [0, 1, 0, 0, 0, 0, 0, 6, 8],
+            [6, 0, 8, 1, 0, 5, 3, 0, 0],
+            [0, 0, 3, 8, 7, 6, 0, 0, 0],
+        ],
+        box_size=BoxSize(3, 3),
+    )
+
+    locked_candidate = techniques.LockedCandidate(sudoku).first()
+
+    assert locked_candidate.combination.cells == [
+        Cell(position=Position(6, 3, 7), candidates={4, 9}),
+        Cell(position=Position(6, 4, 7), candidates={2, 4, 9}),
+    ]
+    assert locked_candidate.combination.values == [9]
+
+    assert locked_candidate.changes == [
+        Cell(position=Position(7, 4, 7), candidates={2, 4})
     ]
 
 
