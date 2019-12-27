@@ -12,6 +12,10 @@ Overview
     :alt: Coverage Status
     :target: https://codecov.io/gh/unmade/dokusan
 
+.. image:: http://www.mypy-lang.org/static/mypy_badge.svg
+    :alt: Checked with mypy
+    :target: http://mypy-lang.org/
+
 .. image:: https://img.shields.io/pypi/v/dokusan.svg
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/dokusan

@@ -183,7 +183,7 @@ class NakedTriplet(Technique):
 
 class LockedCandidate(Technique):
     def _find(self) -> Iterator[Combination]:
-        for group in self.sudoku.boxes():
+        for group in self.sudoku.groups():
             candidate_map: Dict[int, List[Cell]] = {}
             for cell in group:
                 if cell.candidates:
