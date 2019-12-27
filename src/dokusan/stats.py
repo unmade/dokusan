@@ -13,9 +13,6 @@ def rank(sudoku: Sudoku) -> int:
         nonlocal total_branch_factor
         _sudoku = solvers.eliminate(sudoku)
 
-        if not _sudoku.is_valid():
-            raise exceptions.InvalidSudoku
-
         cells = sorted(
             (cell for cell in _sudoku.cells() if not cell.value),
             key=operator.attrgetter("candidates"),

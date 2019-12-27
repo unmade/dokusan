@@ -69,7 +69,7 @@ from dokusan.entities import BoxSize, Sudoku
     ],
 )
 def test_rank(puzzle, solutions, rank):
-    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3),)
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3))
     assert stats.rank(sudoku) == rank
 
 
@@ -85,6 +85,6 @@ def test_rank_sudoku_with_multiple_solutions():
         [0, 0, 0, 0, 0, 0, 4, 0, 0],
         [0, 0, 1, 0, 3, 0, 0, 8, 0],
     ]
-    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3),)
+    sudoku = Sudoku.from_list(puzzle, box_size=BoxSize(3, 3))
     with pytest.raises(exceptions.MultipleSolutions):
         stats.rank(sudoku)
