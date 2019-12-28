@@ -276,8 +276,9 @@ class UniqueRectangle(Technique):
         return rectangle
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
-        return next(
-            [Cell(position=edge_a.position, candidates=diff)]
-            for edge_a, edge_b in itertools.combinations(combination.cells, 2)
-            if (diff := edge_a.candidates - edge_b.candidates)
-        )
+        eliminated = set(combination.values)
+        return [
+            Cell(position=cell.position, candidates=diff)
+            for cell in combination.cells
+            if (diff := cell.candidates - eliminated)
+        ]

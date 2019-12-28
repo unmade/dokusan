@@ -500,6 +500,35 @@ def test_unique_rectangle():
     ]
 
 
+def test_unique_rectangle_block_apart():
+    sudoku = make_sudoku_with_marks(
+        [
+            [9, 0, 1, 0, 3, 0, 5, 0, 0],
+            [0, 0, 7, 8, 1, 9, 0, 0, 0],
+            [0, 2, 0, 4, 5, 6, 1, 9, 7],
+            [1, 0, 2, 9, 0, 0, 6, 0, 5],
+            [0, 0, 0, 6, 7, 1, 0, 2, 4],
+            [6, 0, 0, 3, 2, 5, 8, 0, 0],
+            [0, 1, 5, 0, 9, 0, 4, 6, 3],
+            [0, 0, 6, 5, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 6, 3, 0, 5, 0],
+        ],
+        box_size=BoxSize(3, 3),
+    )
+
+    unique_rectangle = techniques.UniqueRectangle(sudoku).first()
+    assert unique_rectangle.combination.cells == [
+        Cell(position=Position(0, 3, 1), candidates={2, 7}),
+        Cell(position=Position(0, 5, 1), candidates={2, 7}),
+        Cell(position=Position(6, 3, 7), candidates={2, 7}),
+        Cell(position=Position(6, 5, 7), candidates={2, 7, 8}),
+    ]
+
+    assert unique_rectangle.changes == [
+        Cell(position=Position(6, 5, 7), candidates={8})
+    ]
+
+
 def test_unique_rectangle_not_found():
     sudoku = make_sudoku_with_marks(
         [
