@@ -1,4 +1,5 @@
 import pytest
+
 from dokusan import exceptions, stats
 from dokusan.boards import BoxSize, Sudoku
 

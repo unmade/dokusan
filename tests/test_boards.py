@@ -1,6 +1,7 @@
 import operator
 
 import pytest
+
 from dokusan.boards import BoxSize, Cell, Position, Sudoku
 
 

@@ -2,6 +2,7 @@ import operator
 from typing import List
 
 import pytest
+
 from dokusan import techniques
 from dokusan.boards import BoxSize, Cell, Position, Sudoku
 

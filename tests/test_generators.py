@@ -1,4 +1,5 @@
 import pytest
+
 from dokusan import generators
 from dokusan.boards import BoxSize, Sudoku
 
