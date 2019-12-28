@@ -47,6 +47,28 @@ def test_pencil_marking():
     ]
 
 
+def test_pencil_marking_all_board():
+    sudoku = Sudoku.from_list(
+        [
+            [0, 0, 0, 0, 9, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 2, 3, 0, 0],
+            [0, 0, 7, 0, 0, 1, 8, 2, 5],
+            [6, 0, 4, 0, 3, 8, 9, 0, 0],
+            [8, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0, 0, 0, 0, 8],
+            [1, 7, 0, 0, 0, 0, 6, 0, 0],
+            [9, 0, 0, 0, 1, 0, 7, 4, 3],
+            [4, 0, 3, 0, 6, 0, 0, 0, 1],
+        ],
+        box_size=BoxSize(3, 3),
+    )
+
+    for step in techniques.PencilMarking(sudoku):
+        sudoku.update(step.changes)
+
+    assert sudoku.is_valid()
+
+
 def test_pencil_marking_corrects_invalid_mark():
     sudoku = make_sudoku_with_marks(
         [
