@@ -2,7 +2,7 @@ import operator
 from typing import Iterator
 
 from dokusan import exceptions, techniques
-from dokusan.entities import Cell, Sudoku
+from dokusan.boards import Cell, Sudoku
 from dokusan.techniques import Step
 
 

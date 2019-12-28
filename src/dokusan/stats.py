@@ -1,7 +1,7 @@
 import operator
 
 from dokusan import exceptions, solvers
-from dokusan.entities import Cell, Sudoku
+from dokusan.boards import Cell, Sudoku
 
 
 def rank(sudoku: Sudoku) -> int:

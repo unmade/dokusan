@@ -1,5 +1,5 @@
 from dokusan import renderers, techniques
-from dokusan.entities import BoxSize, Sudoku
+from dokusan.boards import BoxSize, Sudoku
 
 
 def test_plain():

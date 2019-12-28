@@ -66,7 +66,7 @@ For example to see all techniques that sudoku has:
 .. code-block:: python
 
     from dokusan import solvers
-    from dokusan.entities import BoxSize, Sudoku
+    from dokusan.boards import BoxSize, Sudoku
 
 
     sudoku = Sudoku.from_list(
@@ -95,7 +95,7 @@ however slightly modified to work fast
 .. code-block:: python
 
     from dokusan import solvers, renderers
-    from dokusan.entities import BoxSize, Sudoku
+    from dokusan.boards import BoxSize, Sudoku
 
 
     sudoku = Sudoku.from_list(

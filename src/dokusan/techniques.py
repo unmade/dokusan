@@ -6,7 +6,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
-from dokusan.entities import Cell, Sudoku
+from dokusan.boards import Cell, Sudoku
 
 
 class NotFound(Exception):

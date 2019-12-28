@@ -1,6 +1,7 @@
 import pytest
+
 from dokusan import exceptions, stats
-from dokusan.entities import BoxSize, Sudoku
+from dokusan.boards import BoxSize, Sudoku
 
 
 @pytest.mark.parametrize(
