@@ -49,10 +49,10 @@ class Technique:
             raise NotFound("Not found")
 
     def _find(self) -> Iterator[Combination]:
-        raise NotImplementedError  # pragma: no cover
+        raise NotImplementedError
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
-        raise NotImplementedError  # pragma: no cover
+        raise NotImplementedError
 
 
 class PencilMarking(Technique):

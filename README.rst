@@ -94,7 +94,7 @@ however slightly modified to work fast
 
 .. code-block:: python
 
-    from dokusan import solvers
+    from dokusan import solvers, renderers
     from dokusan.entities import BoxSize, Sudoku
 
 
@@ -113,7 +113,8 @@ however slightly modified to work fast
         box_size=BoxSize(3, 3),
     )
 
-    solvers.backtrack(sudoku)
+    solution = solvers.backtrack(sudoku)
+    print(renderers.colorful(solution))
 
 Sudoku Generator
 ----------------
@@ -126,10 +127,11 @@ To generate a new sudoku:
 
 .. code-block:: python
 
-    from dokusan import generators
+    from dokusan import generators, renderers
 
 
-    generators.random_sudoku(avg_rank=150)
+    sudoku = generators.random_sudoku(avg_rank=150)
+    print(renderers.colorful(sudoku))
 
 Ranking and Sudoku difficulty
 *****************************
