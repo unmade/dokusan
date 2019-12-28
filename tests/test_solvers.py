@@ -1,6 +1,6 @@
 import pytest
 from dokusan import exceptions, solvers
-from dokusan.entities import BoxSize, Sudoku
+from dokusan.boards import BoxSize, Sudoku
 
 
 def test_eliminate():

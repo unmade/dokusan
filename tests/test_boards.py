@@ -1,7 +1,7 @@
 import operator
 
 import pytest
-from dokusan.entities import BoxSize, Cell, Position, Sudoku
+from dokusan.boards import BoxSize, Cell, Position, Sudoku
 
 
 @pytest.fixture

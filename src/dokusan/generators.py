@@ -2,7 +2,7 @@ import random
 from typing import List
 
 from dokusan import exceptions, solvers, stats
-from dokusan.entities import BoxSize, Cell, Position, Sudoku
+from dokusan.boards import BoxSize, Cell, Position, Sudoku
 
 MAX_ITERATIONS = 300
 
@@ -37,10 +37,10 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
         for i in range(box_size.width)
     ]
 
-    while True:
+    while True:  # pragma: no branch
         row_values = random.sample(all_values - set(box_values[0]), k=box_size.length)
         used_values = [sorted(box_values[i]) for i in range(1, box_size.width)]
-        if sorted(row_values) not in used_values:  # pragma: no cover
+        if sorted(row_values) not in used_values:
             break
 
     row_values += random.sample(

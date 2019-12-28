@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 from dokusan import techniques
-from dokusan.entities import BoxSize, Cell, Position, Sudoku
+from dokusan.boards import BoxSize, Cell, Position, Sudoku
 
 
 def make_sudoku_with_marks(puzzle: List[List[int]], box_size: BoxSize) -> Sudoku:

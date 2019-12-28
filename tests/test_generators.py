@@ -1,6 +1,6 @@
 import pytest
 from dokusan import generators
-from dokusan.entities import BoxSize, Sudoku
+from dokusan.boards import BoxSize, Sudoku
 
 
 @pytest.mark.slow

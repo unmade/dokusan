@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, NamedTuple, Protocol
 
-from dokusan.entities import BoxSize, Cell, Sudoku
+from dokusan.boards import BoxSize, Cell, Sudoku
 
 
 class Color(Protocol):
