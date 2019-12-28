@@ -11,9 +11,6 @@ def random_sudoku(avg_rank: int = 150, box_size: BoxSize = BoxSize(3, 3)) -> Sud
     sudoku = Sudoku(*_random_initial_cells(box_size), box_size=box_size)
     solution = solvers.backtrack(sudoku)
 
-    best_sudoku = Sudoku(*solution.cells(), box_size=box_size)
-    best_rank = 0
-
     iterations = min(avg_rank, MAX_ITERATIONS)
     for i in range(iterations):
         size = random.randint(1, 2)
@@ -23,16 +20,11 @@ def random_sudoku(avg_rank: int = 150, box_size: BoxSize = BoxSize(3, 3)) -> Sud
         if all(cell.value for cell in cells):
             solution.update([Cell(position=cell.position) for cell in cells])
             try:
-                rank = stats.rank(solution)
+                stats.rank(solution)
             except exceptions.MultipleSolutions:
                 solution.update(cells)
-                continue
-            if rank > best_rank:
-                best_sudoku = Sudoku(*solution.cells(), box_size=box_size)
-                best_rank = rank
-                continue
 
-    return best_sudoku
+    return solution
 
 
 def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
@@ -48,7 +40,7 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
     while True:
         row_values = random.sample(all_values - set(box_values[0]), k=box_size.length)
         used_values = [sorted(box_values[i]) for i in range(1, box_size.width)]
-        if sorted(row_values) not in used_values:
+        if sorted(row_values) not in used_values:  # pragma: no cover
             break
 
     row_values += random.sample(
