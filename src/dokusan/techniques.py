@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 import operator
+from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
 from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple
@@ -31,7 +32,7 @@ class Combination:
         return f"{self.name}: `{', '.join(values)}` at {', '.join(positions)}"
 
 
-class Technique:
+class Technique(ABC):
     def __init__(self, sudoku: Sudoku):
         self.sudoku = sudoku
 
@@ -48,11 +49,13 @@ class Technique:
         except StopIteration:
             raise NotFound("Not found")
 
+    @abstractmethod
     def _find(self) -> Iterator[Combination]:
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def _get_changes(self, combination: Combination) -> List[Cell]:
-        raise NotImplementedError
+        ...
 
 
 class PencilMarking(Technique):
@@ -71,7 +74,7 @@ class PencilMarking(Technique):
                 result.append(Cell(position=cell.position, candidates=candidates))
         return result
 
-    def _get_candidates(self, cell) -> Set[int]:
+    def _get_candidates(self, cell: Cell) -> Set[int]:
         intersection = self.sudoku.intersection(cell)
         all_values = set(range(1, self.sudoku.size + 1))
         return all_values - set(cell.value for cell in intersection if cell.value)
