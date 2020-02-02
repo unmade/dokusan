@@ -1,9 +1,9 @@
 import operator
-from typing import Iterator
+from typing import Iterator, Tuple, Type
 
 from dokusan import exceptions, techniques
 from dokusan.boards import Cell, Sudoku
-from dokusan.techniques import Step
+from dokusan.techniques import Step, Technique
 
 
 def eliminate(sudoku: Sudoku) -> Sudoku:
@@ -52,7 +52,7 @@ def backtrack(sudoku: Sudoku) -> Sudoku:
 def steps(sudoku: Sudoku) -> Iterator[Step]:
     _sudoku = Sudoku(*sudoku.cells(), box_size=sudoku.box_size)
 
-    all_techniques = (
+    all_techniques: Tuple[Type[Technique], ...] = (
         techniques.LoneSingle,
         techniques.HiddenSingle,
         techniques.NakedPair,
