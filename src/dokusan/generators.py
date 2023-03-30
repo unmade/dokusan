@@ -31,20 +31,20 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
     size = box_size.width * box_size.length
     all_values = set(range(1, size + 1))
 
-    values = random.sample(all_values, k=size)
+    values = random.sample(sorted(all_values), k=size)
     box_values = [
         values[i * box_size.length : i * box_size.length + box_size.length]
         for i in range(box_size.width)
     ]
 
     while True:  # pragma: no branch
-        row_values = random.sample(all_values - set(box_values[0]), k=box_size.length)
+        row_values = random.sample(sorted(all_values - set(box_values[0])), k=box_size.length)
         used_values = [sorted(box_values[i]) for i in range(1, box_size.width)]
         if sorted(row_values) not in used_values:
             break
 
-    row_values += random.sample(
-        all_values.difference(box_values[0], row_values), k=box_size.length
+    row_values += random.sample(sorted(
+        all_values.difference(box_values[0], row_values)), k=box_size.length
     )
 
     return [
@@ -61,3 +61,4 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
         )
         for i, value in enumerate(row_values, start=box_size.length)
     ]
+
