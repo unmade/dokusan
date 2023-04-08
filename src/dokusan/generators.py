@@ -31,7 +31,7 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
     size = box_size.width * box_size.length
     all_values = set(range(1, size + 1))
 
-    values = random.sample(sorted(all_values), k=size)
+    values = random.sample(list(all_values), k=size)
     box_values = [
         values[i * box_size.length : i * box_size.length + box_size.length]
         for i in range(box_size.width)
