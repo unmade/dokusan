@@ -63,7 +63,12 @@ class Sudoku:
         for i, row in enumerate(puzzle):
             for j, value in enumerate(row):
                 position = Position(i, j, box_size.sequential(i, j))
-                cells.append(Cell(position=position, value=value if value else None,))
+                cells.append(
+                    Cell(
+                        position=position,
+                        value=value if value else None,
+                    )
+                )
         return cls(*cells, box_size=box_size)
 
     @classmethod

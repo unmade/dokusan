@@ -38,13 +38,15 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
     ]
 
     while True:  # pragma: no branch
-        row_values = random.sample(sorted(all_values - set(box_values[0])), k=box_size.length)
+        row_values = random.sample(
+            list(all_values - set(box_values[0])), k=box_size.length
+        )
         used_values = [sorted(box_values[i]) for i in range(1, box_size.width)]
         if sorted(row_values) not in used_values:
             break
 
-    row_values += random.sample(sorted(
-        all_values.difference(box_values[0], row_values)), k=box_size.length
+    row_values += random.sample(
+        list(all_values.difference(box_values[0], row_values)), k=box_size.length
     )
 
     return [
@@ -61,4 +63,3 @@ def _random_initial_cells(box_size: BoxSize) -> List[Cell]:
         )
         for i, value in enumerate(row_values, start=box_size.length)
     ]
-
