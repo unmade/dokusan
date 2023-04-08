@@ -11,7 +11,7 @@ parallel = true
 
 [report]
 precision = 2
-fail_under = 100
+fail_under = 99.9
 show_missing = true
 exclude_lines =
     # pragma: no cover

@@ -63,7 +63,9 @@ class PencilMarking(Technique):
         for cell in self.sudoku.cells():
             if not cell.value:
                 yield Combination(
-                    name="Pencil Marking", cells=[cell], values=[],
+                    name="Pencil Marking",
+                    cells=[cell],
+                    values=[],
                 )
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
@@ -94,13 +96,16 @@ class LoneSingle(Technique):
         for cell in self.sudoku.cells():
             if len(cell.candidates) == 1:
                 yield Combination(
-                    name="Lone Single", cells=[cell], values=list(cell.candidates),
+                    name="Lone Single",
+                    cells=[cell],
+                    values=list(cell.candidates),
                 )
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
         eliminated = set(combination.values)
         single = Cell(
-            position=combination.cells[0].position, value=combination.values[0],
+            position=combination.cells[0].position,
+            value=combination.values[0],
         )
         return [
             Cell(position=cell.position, candidates=cell.candidates - eliminated)
@@ -121,13 +126,16 @@ class HiddenSingle(Technique):
             for candidate, cells in candidate_map.items():
                 if len(cells) == 1:
                     yield Combination(
-                        name="Hidden Single", cells=cells, values=[candidate],
+                        name="Hidden Single",
+                        cells=cells,
+                        values=[candidate],
                     )
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
         eliminated = set(combination.values)
         single = Cell(
-            position=combination.cells[0].position, value=combination.values[0],
+            position=combination.cells[0].position,
+            value=combination.values[0],
         )
         return [
             Cell(position=cell.position, candidates=cell.candidates - eliminated)
@@ -147,7 +155,9 @@ class NakedPair(Technique):
             for candidates, cells in candidates_map.items():
                 if len(candidates) == 2 and len(cells) == 2:
                     yield Combination(
-                        name="Naked Pair", cells=cells, values=list(candidates),
+                        name="Naked Pair",
+                        cells=cells,
+                        values=list(candidates),
                     )
 
     def _get_changes(self, combination: Combination) -> List[Cell]:
